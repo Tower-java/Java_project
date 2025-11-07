@@ -10,10 +10,10 @@ import java.util.ArrayList;
  */
 public abstract class ABoss extends AEntity {
 
-    // Attributs protégés pour que les enfants (GolemBoss) puissent les voir
-    protected int attackPoints;
-    protected int healPoints;
-    protected boolean isEnraged;
+    // Attributs privés pour forcer l'utilisation des getters (encapsulation)
+    private int attackPoints;
+    private int healPoints;
+    private boolean isEnraged;
     
     protected List<AAction> actionScript;
     protected int scriptIndex;

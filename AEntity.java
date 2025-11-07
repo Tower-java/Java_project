@@ -47,7 +47,7 @@ public abstract class AEntity{
         if (this.hp > this.maxHp){
             this.hp = this.maxHp;
         }
-        System.out.println(this.name + " soigne de" + amount + " PV!");
+        System.out.println(this.name + " se soigne de " + amount + " PV!");
     }
 
     public void addStatus(IStatusEffect status){
