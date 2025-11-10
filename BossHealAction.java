@@ -40,8 +40,7 @@ public class BossHealAction extends AAction {
         // 3d. Afficher l'action et appliquer le soin à l'utilisateur (le boss lui-même)
         System.out.println(user.getName() + " utilise " + this.name + " !");
         
-        // Le boss se soigne lui-même (user), pas sa cible (target).
-        // La méthode s'appelle "heal", pas "userHeal".
+        // Utilisation de la méthode heal()
         user.heal((int)finalHeal);
         
         this.startCooldown();

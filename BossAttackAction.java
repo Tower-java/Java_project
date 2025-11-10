@@ -8,7 +8,7 @@ public class BossAttackAction extends AAction {
      * @param name Le nom de l'attaque (ex: "Morsure")
      * @param element L'élément de l'attaque
      * @param multiplier Le multiplicateur de dégâts selon l'attaque, different de la roue elementaire (ex: 0.5, 1.0, 2.0)
-     * @param cooldown Le temps de recharge en tours
+     * @param cooldownDuration Le temps de recharge en tours
      */
     public BossAttackAction(String name, Element element, int cooldownDuration, double multiplier) {
         super(name, element, cooldownDuration);

@@ -55,6 +55,19 @@ public abstract class AEntity{
         System.out.println(this.name + " est maintenant affecté par " + status.getName() + "!");
     }
 
+    /**
+     * Met à jour tous les effets de statut actifs sur l'entité.
+     * Appelle onTurnEnd() et updateDuration() sur chaque effet.
+     */
+    public void updateStatusEffects() {
+        // On utilise un itérateur pour pouvoir supprimer des éléments en toute sécurité
+        activeStatus.removeIf(status -> {
+            status.onTurnEnd(this);
+            status.updateDuration();
+            return status.isDone();
+        });
+    }
+
     public boolean isAlive(){
         return this.hp > 0;
     }
