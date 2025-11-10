@@ -59,12 +59,9 @@ public class StageManager {
      * Crée tous les boss du jeu, dans l'ordre
      */
     private void loadAllBosses() {
-        // TODO: Décommenter ces lignes lorsque les classes de Boss correspondantes seront créées.
-        /*
-        this.bossList.add(new FireBoss());
-        this.bossList.add(new WaterBoss());
-        this.bossList.add(new PlantBoss());
-        */
+        // On instancie et on ajoute notre premier boss à la liste !
+        this.bossList.add(new FireElementalBoss());
+        // this.bossList.add(new WaterSerpentBoss()); // etc.
     }
 
     // --- Méthodes Publiques (pour le GameEngine) ---

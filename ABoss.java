@@ -13,8 +13,9 @@ public abstract class ABoss extends AEntity {
     // Attributs privés pour forcer l'utilisation des getters (encapsulation)
     private int attackPoints;
     private int healPoints;
-    private boolean isEnraged;
-    
+    protected boolean isEnraged;
+    protected boolean isInvulnerable;
+
     protected List<AAction> actionScript;
     protected int scriptIndex;
 
@@ -36,6 +37,7 @@ public abstract class ABoss extends AEntity {
         this.attackPoints = attackPoints;
         this.healPoints = healPoints;
         this.isEnraged = false; // Par défaut, non enragé
+        this.isInvulnerable = false; // Par défaut, vulnérable (on active invulné dans la classe du boss spécifique)
         this.scriptIndex = 0;   // Commence au début du script
         this.actionScript = new ArrayList<>(); // Initialisation pour éviter NullPointerException
     }
@@ -48,7 +50,23 @@ public abstract class ABoss extends AEntity {
      * @param player L'entité joueur, pour vérifier ses actions ou statuts.
      * @param turnNumber Le numéro du tour actuel.
      */
-    public abstract void checkGimmick(Player player, int turnNumber);
+    public abstract void checkGimmick(Player player, AAction action, int turnNumber);
+
+    /**
+     * Surcharge la méthode takeDamage pour gérer l'invulnérabilité.
+     * Si le boss est invulnérable, il ne subit aucun dégât.
+     * Sinon, on exécute la logique de base de AEntity.
+     * @param amount La quantité de dégâts bruts.
+     */
+    @Override
+    public void takeDamage(int amount) {
+        if (this.isInvulnerable) {
+            System.out.println(this.name + " est invulnérable et ne subit aucun dégât !");
+            return; // On arrête la méthode ici
+        }
+        // Si le boss n'est pas invulnérable, on appelle la méthode originale de AEntity
+        super.takeDamage(amount);
+    }
 
     /**
      * Charge le scénario d'attaques du boss.
@@ -90,5 +108,9 @@ public abstract class ABoss extends AEntity {
     
     public boolean isEnraged() {
         return this.isEnraged;
+    }
+
+    public boolean isInvulnerable() {
+        return this.isInvulnerable;
     }
 }
