@@ -1,0 +1,65 @@
+-J-Duser.language=
+-J-Duser.country=
+@options
+@packages
+@argfile
+--no-fonts
+-classpath
+'/home/tanguy/.m2/repository/org/openjfx/javafx-controls/21/javafx-controls-21.jar:/home/tanguy/.m2/repository/org/openjfx/javafx-controls/21/javafx-controls-21-linux.jar:/home/tanguy/.m2/repository/org/openjfx/javafx-graphics/21/javafx-graphics-21.jar:/home/tanguy/.m2/repository/org/openjfx/javafx-graphics/21/javafx-graphics-21-linux.jar:/home/tanguy/.m2/repository/org/openjfx/javafx-base/21/javafx-base-21.jar:/home/tanguy/.m2/repository/org/openjfx/javafx-base/21/javafx-base-21-linux.jar:/home/tanguy/.m2/repository/org/openjfx/javafx-fxml/21/javafx-fxml-21.jar:/home/tanguy/.m2/repository/org/openjfx/javafx-fxml/21/javafx-fxml-21-linux.jar'
+-encoding
+'UTF-8'
+-protected
+--release
+21
+-sourcepath
+'/home/tanguy/Java_project/src/main/java'
+-author
+-bottom
+'Copyright &#169; 2025. All rights reserved.'
+-charset
+'UTF-8'
+-d
+'/home/tanguy/Java_project/target/reports/apidocs'
+-docencoding
+'UTF-8'
+-doctitle
+'turnbased-game 1.0-SNAPSHOT API'
+-use
+-version
+-windowtitle
+'turnbased-game 1.0-SNAPSHOT API'
+towergame.controller
+towergame.view
+towergame.model.actions
+towergame.model.managers
+towergame.model.status
+towergame.model.entities
+towergame
+'/home/tanguy/Java_project/src/main/java/JavaFXMain.java'
+'/home/tanguy/Java_project/src/main/java/BattleController.java'
+/home/tanguy/.m2/repository/org/openjfx/javafx-controls/21/javafx-controls-21.jar = 1695031945000
+/home/tanguy/.m2/repository/org/openjfx/javafx-controls/21/javafx-controls-21-linux.jar = 1695031971000
+/home/tanguy/.m2/repository/org/openjfx/javafx-graphics/21/javafx-graphics-21.jar = 1695032008000
+/home/tanguy/.m2/repository/org/openjfx/javafx-graphics/21/javafx-graphics-21-linux.jar = 1695032031000
+/home/tanguy/.m2/repository/org/openjfx/javafx-base/21/javafx-base-21.jar = 1695031918000
+/home/tanguy/.m2/repository/org/openjfx/javafx-base/21/javafx-base-21-linux.jar = 1695031923000
+/home/tanguy/.m2/repository/org/openjfx/javafx-fxml/21/javafx-fxml-21.jar = 1695031980000
+/home/tanguy/.m2/repository/org/openjfx/javafx-fxml/21/javafx-fxml-21-linux.jar = 1695031998000
+/home/tanguy/Java_project/src/main/java/JavaFXMain.java = 1763389506663
+/home/tanguy/Java_project/src/main/java/BattleController.java = 1763389472910
+/home/tanguy/Java_project/src/main/java = 1763389169763
+/home/tanguy/Java_project/target/reports/apidocs/overview-tree.html = 1763478712980
+/home/tanguy/Java_project/target/reports/apidocs/type-search-index.js = 1763478713010
+/home/tanguy/Java_project/target/reports/apidocs/help-doc.html = 1763478713044
+/home/tanguy/Java_project/target/reports/apidocs/tag-search-index.js = 1763478713011
+/home/tanguy/Java_project/target/reports/apidocs/search.html = 1763478713040
+/home/tanguy/Java_project/target/reports/apidocs/module-search-index.js = 1763478713009
+/home/tanguy/Java_project/target/reports/apidocs/element-list = 1763478712820
+/home/tanguy/Java_project/target/reports/apidocs/serialized-form.html = 1763478712876
+/home/tanguy/Java_project/target/reports/apidocs/overview-summary.html = 1763478713041
+/home/tanguy/Java_project/target/reports/apidocs/member-search-index.js = 1763478713010
+/home/tanguy/Java_project/target/reports/apidocs/package-search-index.js = 1763478713009
+/home/tanguy/Java_project/target/reports/apidocs/allclasses-index.html = 1763478713007
+/home/tanguy/Java_project/target/reports/apidocs/index-all.html = 1763478713038
+/home/tanguy/Java_project/target/reports/apidocs/allpackages-index.html = 1763478713008
+/home/tanguy/Java_project/target/reports/apidocs/index.html = 1763478712983

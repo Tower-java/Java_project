@@ -1,0 +1,135 @@
+/* ========================================
+   Tower Battle - JavaFX Stylesheet
+   Optimized for SceneBuilder
+   ======================================== */
+
+/* Root styling */
+.root {
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-background-color: #2b2b2b;
+}
+
+/* Entity name labels */
+.entity-name {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 5, 0, 0, 2);
+}
+
+/* Entity HP labels */
+.entity-hp {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #4ecdc4;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 3, 0, 0, 1);
+}
+
+/* Action buttons - Style gaming amélioré */
+Button {
+    -fx-background-color: linear-gradient(to bottom, #4a90e2, #357abd);
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-padding: 15 25 15 25;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: #2c5282;
+    -fx-border-width: 3;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 8, 0, 0, 4);
+    -fx-min-width: 180px;
+    -fx-pref-height: 50px;
+}
+
+Button:hover {
+    -fx-background-color: linear-gradient(to bottom, #5ba3f5, #4a90e2);
+    -fx-border-color: #3c6ba5;
+    -fx-scale-x: 1.08;
+    -fx-scale-y: 1.08;
+    -fx-effect: dropshadow(gaussian, rgba(74, 144, 226, 0.4), 12, 0, 0, 6);
+}
+
+Button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #357abd, #2c5282);
+    -fx-scale-x: 0.95;
+    -fx-scale-y: 0.95;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 4, 0, 0, 2);
+}
+
+Button:disabled {
+    -fx-background-color: linear-gradient(to bottom, #5a5a5a, #3a3a3a);
+    -fx-text-fill: #888888;
+    -fx-border-color: #444444;
+    -fx-opacity: 0.6;
+    -fx-cursor: default;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 3, 0, 0, 1);
+}
+
+/* Attack action buttons - Style FF7 */
+.attack-button {
+    -fx-background-color: linear-gradient(to bottom, #ff4757, #ff3742);
+    -fx-border-color: #ff2f3a;
+    -fx-effect: dropshadow(gaussian, rgba(255, 71, 87, 0.5), 10, 0, 0, 5);
+}
+
+.attack-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #ff6b7d, #ff4757);
+    -fx-effect: dropshadow(gaussian, rgba(255, 71, 87, 0.8), 15, 0, 0, 8);
+}
+
+/* Heal action buttons - Style Pokémon */
+.heal-button {
+    -fx-background-color: linear-gradient(to bottom, #2ed573, #1dd1a1);
+    -fx-border-color: #10ac84;
+    -fx-effect: dropshadow(gaussian, rgba(46, 213, 115, 0.5), 10, 0, 0, 5);
+}
+
+.heal-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #7bed9f, #2ed573);
+    -fx-effect: dropshadow(gaussian, rgba(46, 213, 115, 0.8), 15, 0, 0, 8);
+}
+
+/* Defend action buttons - Style mystique */
+.defend-button {
+    -fx-background-color: linear-gradient(to bottom, #70a1ff, #5352ed);
+    -fx-border-color: #3742fa;
+    -fx-effect: dropshadow(gaussian, rgba(112, 161, 255, 0.5), 10, 0, 0, 5);
+}
+
+.defend-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #a4b0ff, #70a1ff);
+    -fx-effect: dropshadow(gaussian, rgba(112, 161, 255, 0.8), 15, 0, 0, 8);
+}
+
+/* Boost action buttons - Style magique */
+.boost-button {
+    -fx-background-color: linear-gradient(to bottom, #ffa502, #ff6348);
+    -fx-border-color: #e55039;
+    -fx-effect: dropshadow(gaussian, rgba(255, 165, 2, 0.5), 10, 0, 0, 5);
+}
+
+.boost-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #ffb142, #ffa502);
+    -fx-effect: dropshadow(gaussian, rgba(255, 165, 2, 0.8), 15, 0, 0, 8);
+}
+
+/* Labels styling */
+Label {
+    -fx-text-fill: white;
+}
+
+/* Separator */
+Separator {
+    -fx-background-color: #555555;
+}
+
+/* VBox and HBox */
+VBox, HBox {
+    -fx-background-color: transparent;
+}
+
+/* Image views */
+ImageView {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0, 0, 3);
+}

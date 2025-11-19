@@ -1,0 +1,156 @@
+{
+  "name": "Projet Java : Tower Battle",
+  "labels": [
+    {"name": "Architecture", "color": "red"},
+    {"name": "Acteurs", "color": "blue"},
+    {"name": "Compétences", "color": "green"},
+    {"name": "Statuts", "color": "purple"},
+    {"name": "Managers", "color": "orange"},
+    {"name": "Éléments", "color": "yellow"},
+    {"name": "Livrable", "color": "black"},
+    {"name": "Bug", "color": "pink"}
+  ],
+  "lists": [
+    {"name": "BACKLOG (Toutes les Tâches)"},
+    {"name": "À FAIRE (Priorisé)"},
+    {"name": "EN COURS"},
+    {"name": "À VÉRIFIER / REVIEW"},
+    {"name": "TERMINÉ"}
+  ],
+  "cards": [
+    {
+      "name": "[SETUP PROJET]",
+      "list": "BACKLOG (Toutes les Tâches)",
+      "labels": ["Architecture"],
+      "checklists": [
+        {
+          "name": "Checklist",
+          "checkItems": [
+            {"name": "Créer le dépôt Git + .gitignore (pour Java/JavaFX)", "state": "incomplete"},
+            {"name": "Inviter les 3 membres de l'équipe", "state": "incomplete"},
+            {"name": "Mettre en place le projet JavaFX de base (une fenêtre vide qui se lance)", "state": "incomplete"},
+            {"name": "Confirmer que tout le monde peut \"clone\" le projet, le compiler et le lancer.", "state": "incomplete"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "[BLOC 1 : Architecture de Base]",
+      "list": "BACKLOG (Toutes les Tâches)",
+      "labels": ["Architecture"],
+      "checklists": [
+        {
+          "name": "Checklist",
+          "checkItems": [
+            {"name": "Coder (E) Element (avec getMultiplierAgainst())", "state": "incomplete"},
+            {"name": "Coder (I) StatusEffect (l'interface, avec toutes ses méthodes)", "state": "incomplete"},
+            {"name": "Coder (A) Entity (la classe abstraite, avec tous ses attributs, y compris activeStatus: List<StatusEffect>)", "state": "incomplete"},
+            {"name": "Coder (A) Action (la classe abstraite racine, avec execute() abstraite)", "state": "incomplete"},
+            {"name": "Coder (A) Boss (avec checkGimmick() abstraite, attackPoints, healPoints...)", "state": "incomplete"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "[BLOC 2 : Système de Statuts]",
+      "list": "BACKLOG (Toutes les Tâches)",
+      "labels": ["Statuts"],
+      "checklists": [
+        {
+          "name": "Checklist",
+          "checkItems": [
+            {"name": "Coder (C) BoostStatus (implémente modifyDamageDealt)", "state": "incomplete"},
+            {"name": "Coder (C) WeakenStatus (implémente modifyDamageTaken)", "state": "incomplete"},
+            {"name": "Coder (C) DefendStatus (implémente modifyDamageTaken)", "state": "incomplete"},
+            {"name": "Coder (C) StatusA_Entrave (implémente onTurnStart)", "state": "incomplete"},
+            {"name": "Coder (C) StatusB_Poison (implémente onTurnEnd)", "state": "incomplete"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "[BLOC 3 : Compétences du Joueur (9)]",
+      "list": "BACKLOG (Toutes les Tâches)",
+      "labels": ["Compétences"],
+      "checklists": [
+        {
+          "name": "Checklist",
+          "checkItems": [
+            {"name": "Coder (C) PlayerHealSpell", "state": "incomplete"},
+            {"name": "Coder (C) PlayerBoostSpell", "state": "incomplete"},
+            {"name": "Coder (C) PlayerWeakenSpell", "state": "incomplete"},
+            {"name": "Coder (C) FireSpell", "state": "incomplete"},
+            {"name": "Coder (C) FireHardSpell", "state": "incomplete"},
+            {"name": "Coder (C) WaterSpell", "state": "incomplete"},
+            {"name": "Coder (C) WaterHardSpell", "state": "incomplete"},
+            {"name": "Coder (C) PlantSpell", "state": "incomplete"},
+            {"name": "Coder (C) PlantHardSpell", "state": "incomplete"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "[BLOC 4 : Compétences du Boss (3)]",
+      "list": "BACKLOG (Toutes les Tâches)",
+      "labels": ["Compétences"],
+      "checklists": [
+        {
+          "name": "Checklist",
+          "checkItems": [
+            {"name": "Coder (C) BossAttackAction (avec sa logique de multiplier)", "state": "incomplete"},
+            {"name": "Coder (C) BossHealAction (avec sa logique de multiplier)", "state": "incomplete"},
+            {"name": "Coder (C) BossDefendAction", "state": "incomplete"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "[BLOC 5 : Acteurs Concrets]",
+      "list": "BACKLOG (Toutes les Tâches)",
+      "labels": ["Acteurs"],
+      "checklists": [
+        {
+          "name": "Checklist",
+          "checkItems": [
+            {"name": "Coder (C) Player (avec equippedActions)", "state": "incomplete"},
+            {"name": "Coder (C) Boss 1 (GolemBoss) (Constructeur + logique checkGimmick)", "state": "incomplete"},
+            {"name": "Coder (C) Boss 2 (DragonBoss) (Constructeur + logique checkGimmick)", "state": "incomplete"},
+            {"name": "Coder (C) Boss 3 (Constructeur + logique checkGimmick)", "state": "incomplete"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "[BLOC 6 : Managers (Le Cerveau)]",
+      "list": "BACKLOG (Toutes les Tâches)",
+      "labels": ["Managers"],
+      "checklists": [
+        {
+          "name": "Checklist",
+          "checkItems": [
+            {"name": "Coder (C) SuccessTracker", "state": "incomplete"},
+            {"name": "Coder (C) StageManager (gestion du \"grimoire\" unlockedActions et de la bossList)", "state": "incomplete"},
+            {"name": "Coder (C) BattleManager (constructeur, et logique executeTurn())", "state": "incomplete"},
+            {"name": "Coder (C) GameEngine (le Main.java qui assemble et lance le jeu)", "state": "incomplete"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "[LIVRABLES FINAUX]",
+      "list": "BACKLOG (Toutes les Tâches)",
+      "labels": ["Livrable"],
+      "checklists": [
+        {
+          "name": "Checklist",
+          "checkItems": [
+            {"name": "Mettre à jour le diagramme UML final", "state": "incomplete"},
+            {"name": "Écrire la Javadoc pour toutes les méthodes publiques (+)", "state": "incomplete"},
+            {"name": "Écrire des Tests Unitaires (JUnit) pour la logique (Element, StatusEffect, Boss.checkGimmick)", "state": "incomplete"},
+            {"name": "Préparer le script de la démo jouable", "state": "incomplete"}
+          ]
+        }
+      ]
+    }
+  ]
+}
