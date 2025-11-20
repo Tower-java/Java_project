@@ -1,1 +1,0 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html","k":"18"},{"l":"towergame"},{"l":"towergame.controller"},{"l":"towergame.model.actions"},{"l":"towergame.model.entities"},{"l":"towergame.model.managers"},{"l":"towergame.model.status"},{"l":"towergame.view"}];updateSearchResults();
