@@ -3,6 +3,7 @@ package towergame.model.managers;
 import towergame.model.actions.*;
 import towergame.model.entities.ABoss;
 import towergame.model.entities.FireElementalBoss;
+import towergame.model.entities.PlantElementalBoss;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -49,8 +50,9 @@ public class StageManager {
      * Crée tous les boss du jeu, dans l'ordre
      */
     private void loadAllBosses() {
-        // On instancie et on ajoute notre premier boss à la liste !
+        // On instancie et on ajoute nos boss à la liste
         this.bossList.add(new FireElementalBoss());
+        this.bossList.add(new PlantElementalBoss());
         // this.bossList.add(new WaterSerpentBoss()); // etc.
     }
 

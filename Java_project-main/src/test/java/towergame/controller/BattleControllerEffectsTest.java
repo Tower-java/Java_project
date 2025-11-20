@@ -25,10 +25,15 @@ class BattleControllerEffectsTest {
     @BeforeAll
     public static void initToolkit() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
-        Platform.startup(() -> {
-            new JFXPanel();
+        try {
+            Platform.startup(() -> {
+                new JFXPanel();
+                latch.countDown();
+            });
+        } catch (IllegalStateException ise) {
+            // Toolkit already initialized by another test; just count down
             latch.countDown();
-        });
+        }
         if (!latch.await(5, TimeUnit.SECONDS)) {
             throw new InterruptedException("Timeout starting JavaFX");
         }
