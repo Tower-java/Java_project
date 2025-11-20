@@ -23,7 +23,9 @@ class BattleManagerTest {
     void setUp() {
         player = new Player("Test Player");
         // Using FireElementalBoss for testing, but a mock would be better
-        boss = new FireElementalBoss(); 
+        boss = new FireElementalBoss();
+        // Désactiver l'invulnérabilité du boss pour les tests
+        boss.setInvulnerable(false);
         battleManager = new BattleManager(player, boss);
     }
 
@@ -81,6 +83,6 @@ class BattleManagerTest {
 
         // Then
         assertFalse(playerAttack.isReady(), "Action should not be ready after being used.");
-        assertEquals(2, playerAttack.getCurrentCooldown(), "Action should be on cooldown.");
+        assertEquals(1, playerAttack.getCurrentCooldown(), "Action cooldown should be decremented after turn end effects.");
     }
 }

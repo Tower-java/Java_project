@@ -56,56 +56,76 @@ public class BattleControllerTest {
     }
 
     @Test
-    public void testInitialize_UpdatesUIDisplay() {
+    public void testInitialize_UpdatesUIDisplay() throws InterruptedException {
         // La méthode initialize crée ses propres objets (StageManager, Player, Boss)
         // ce qui rend le mocking difficile. Ce test est donc plus un test d'intégration.
         // On vérifie que l'UI est bien mise à jour après l'initialisation.
 
+        final CountDownLatch latch = new CountDownLatch(1);
+        
         Platform.runLater(() -> {
-            // Act
-            controller.initialize();
+            try {
+                // Act
+                controller.initialize();
 
-            // Assert
-            // Le joueur est créé avec le nom "Héros" dans la méthode
-            assertEquals("Héros", controller.playerName.getText());
-            
-            // On vérifie que les HP ne sont pas nuls ou vides, car les valeurs exactes
-            // dépendent de l'implémentation de Player et ABoss.
-            assertNotNull(controller.playerHp.getText());
-            assertFalse(controller.playerHp.getText().isEmpty());
+                // Assert
+                // Le joueur est créé avec le nom "Héros" dans la méthode
+                assertEquals("Héros", controller.playerName.getText());
+                
+                // On vérifie que les HP ne sont pas nuls ou vides, car les valeurs exactes
+                // dépendent de l'implémentation de Player et ABoss.
+                assertNotNull(controller.playerHp.getText());
+                assertFalse(controller.playerHp.getText().isEmpty());
 
-            // Le boss est chargé via StageManager, on vérifie juste que le nom n'est pas vide
-            assertNotNull(controller.enemyName.getText());
-            assertFalse(controller.enemyName.getText().isEmpty());
-            assertNotNull(controller.enemyHp.getText());
-            assertFalse(controller.enemyHp.getText().isEmpty());
+                // Le boss est chargé via StageManager, on vérifie juste que le nom n'est pas vide
+                assertNotNull(controller.enemyName.getText());
+                assertFalse(controller.enemyName.getText().isEmpty());
+                assertNotNull(controller.enemyHp.getText());
+                assertFalse(controller.enemyHp.getText().isEmpty());
 
-            // Vérifie que le label de tour est initialisé
-            assertTrue(controller.turnLabel.getText().contains("Tour"));
+                // Vérifie que le label de tour est initialisé
+                assertTrue(controller.turnLabel.getText().contains("Tour"));
 
-            // Vérifie que des boutons d'action ont été créés
-            assertFalse(controller.actionsBox.getChildren().isEmpty(), "La VBox des actions ne devrait pas être vide après initialisation");
-            assertTrue(controller.actionsBox.getChildren().get(0) instanceof Button, "Le premier enfant devrait être un bouton");
+                // Vérifie que des boutons d'action ont été créés
+                assertFalse(controller.actionsBox.getChildren().isEmpty(), "La VBox des actions ne devrait pas être vide après initialisation");
+                assertTrue(controller.actionsBox.getChildren().get(0) instanceof Button, "Le premier enfant devrait être un bouton");
+            } finally {
+                latch.countDown();
+            }
         });
+        
+        if (!latch.await(5, TimeUnit.SECONDS)) {
+            throw new InterruptedException("Timeout: test did not complete within 5 seconds");
+        }
     }
 
     @Test
-    public void testActionButtonClick_UpdatesMessageLabelImmediately() {
+    public void testActionButtonClick_UpdatesMessageLabelImmediately() throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+        
         Platform.runLater(() -> {
-            // Arrange
-            controller.initialize();
-            // On récupère le premier bouton d'action créé
-            Button actionButton = (Button) controller.actionsBox.getChildren().get(0);
+            try {
+                // Arrange
+                controller.initialize();
+                // On récupère le premier bouton d'action créé
+                Button actionButton = (Button) controller.actionsBox.getChildren().get(0);
 
-            // Act
-            // Simule un clic sur le bouton
-            actionButton.fire();
+                // Act
+                // Simule un clic sur le bouton
+                actionButton.fire();
 
-            // Assert
-            // On vérifie que le message affiché est bien celui de l'utilisation de l'action,
-            // qui est la première chose qui se passe avant la PauseTransition.
-            String expectedMessage = "🎯 Héros utilise " + actionButton.getText() + " !";
-            assertEquals(expectedMessage, controller.messageLabel.getText());
+                // Assert
+                // On vérifie que le message affiché est bien celui de l'utilisation de l'action,
+                // qui est la première chose qui se passe avant la PauseTransition.
+                String expectedMessage = "🎯 Héros utilise " + actionButton.getText() + " !";
+                assertEquals(expectedMessage, controller.messageLabel.getText());
+            } finally {
+                latch.countDown();
+            }
         });
+        
+        if (!latch.await(5, TimeUnit.SECONDS)) {
+            throw new InterruptedException("Timeout: test did not complete within 5 seconds");
+        }
     }
 }

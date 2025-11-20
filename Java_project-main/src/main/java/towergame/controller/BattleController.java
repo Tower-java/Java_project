@@ -39,31 +39,31 @@ import towergame.model.managers.SuccessTracker;
 public class BattleController {
 
     @FXML
-    private Label playerName;
+    Label playerName;
 
     @FXML
-    private Label playerHp;
+    Label playerHp;
 
     @FXML
-    private Label enemyName;
+    Label enemyName;
 
     @FXML
-    private Label enemyHp;
+    Label enemyHp;
 
     @FXML
-    private ImageView playerSprite;
+    ImageView playerSprite;
 
     @FXML
-    private ImageView enemySprite;
+    ImageView enemySprite;
 
     @FXML
-    private VBox actionsBox;
+    VBox actionsBox;
 
     @FXML
-    private Label turnLabel;
+    Label turnLabel;
 
     @FXML
-    private Label messageLabel;
+    Label messageLabel;
 
     private Player player;
     private ABoss boss;
@@ -200,7 +200,7 @@ public class BattleController {
         }
     }
 
-    private void endBattle() {
+    void endBattle() {
         String message = player.isAlive()
                 ? "Victoire ! " + boss.getName() + " a été vaincu !"
                 : "Défaite... " + player.getName() + " est tombé au combat.";
@@ -212,7 +212,7 @@ public class BattleController {
                 battleManager.getActionsUsedHistory());
     }
 
-    private void showAlert(String title, String content) {
+    void showAlert(String title, String content) {
         Alert alert = new Alert(AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(null);
@@ -223,7 +223,7 @@ public class BattleController {
     /**
      * Affiche l'effet de résistance style Pokémon/FF7
      */
-    private void showResistanceEffect(String attackName) {
+    void showResistanceEffect(String attackName) {
         Text effectText = new Text("🛡️ " + boss.getName() + " résiste à " + attackName + " !");
         effectText.setFont(Font.font("Arial", FontWeight.BOLD, 18));
         effectText.setFill(Color.LIGHTBLUE);
@@ -238,7 +238,7 @@ public class BattleController {
     /**
      * Affiche l'effet de faiblesse style Pokémon/FF7
      */
-    private void showWeaknessEffect(String attackName) {
+    void showWeaknessEffect(String attackName) {
         Text effectText = new Text("⚡ " + boss.getName() + " craint " + attackName + " !");
         effectText.setFont(Font.font("Arial", FontWeight.BOLD, 18));
         effectText.setFill(Color.YELLOW);
@@ -253,7 +253,7 @@ public class BattleController {
     /**
      * Affiche l'effet d'enrage du boss style Pokémon/FF7
      */
-    private void showBossEnrageEffect() {
+    void showBossEnrageEffect() {
         Text effectText = new Text("🔥 " + boss.getName() + " ENTRE EN RAGE ! 🔥");
         effectText.setFont(Font.font("Arial", FontWeight.BOLD, 20));
         effectText.setFill(Color.RED);
@@ -276,7 +276,7 @@ public class BattleController {
     /**
      * Anime une action du joueur
      */
-    private void animatePlayerAction(String actionName) {
+    void animatePlayerAction(String actionName) {
         messageLabel.setText("🎯 " + player.getName() + " utilise " + actionName + " !");
         messageLabel.setTextFill(Color.LIGHTGREEN);
 
@@ -294,7 +294,7 @@ public class BattleController {
     /**
      * Méthode générique pour afficher des effets d'animation
      */
-    private void showEffectAnimation(Text mainText, Text subText, Color borderColor) {
+    void showEffectAnimation(Text mainText, Text subText, Color borderColor) {
         // Créer une VBox pour contenir l'effet
         VBox effectBox = new VBox(10);
         effectBox.setAlignment(Pos.CENTER);

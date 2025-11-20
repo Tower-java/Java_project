@@ -3,7 +3,6 @@ package towergame.model.actions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import towergame.model.entities.AEntity;
-import towergame.model.managers.World;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,8 +24,6 @@ class BossDefendActionTest {
     @BeforeEach
     void setUp() {
         user = new TestEntity("Test Boss", 500);
-        // Initialise le monde pour que les statuts puissent y être ajoutés
-        new World();
         target = new TestEntity("Unused Target", 100);
     }
 
