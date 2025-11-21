@@ -1,0 +1,204 @@
+@startuml
+"Generated detailed class diagram for Tower Battle project"
+skinparam classAttributeIconSize 0
+
+package "entities" {
+  class AEntity {
+    - name: String
+    - hp: int
+    - maxHp: int
+    - element: Element
+    - activeStatus: List<IStatusEffect>
+    + takeDamage(int)
+    + heal(int)
+    + addStatus(IStatusEffect)
+  }
+
+  class ABoss {
+    - attackPoints: int
+    - healPoints: int
+    - isEnraged: boolean
+    - isInvulnerable: boolean
+    - actionScript: List<AAction>
+    + getNextAction()
+    + checkGimmick(Player, AAction, int)
+  }
+
+  class Player {
+    - equippedActions: List<AAction>
+    + setEquippedActions(List<AAction>)
+    + getEquippedActions()
+  }
+
+  class FireElementalBoss
+  class PlantElementalBoss
+}
+
+package "actions" {
+  class AAction {
+    - name: String
+    - element: Element
+    - cooldownDuration: int
+    - currentCooldown: int
+    + isReady(): boolean
+    + startCooldown()
+    + updateCooldown()
+    + getCurrentCooldown(): int
+    + execute(AEntity, AEntity)
+  }
+
+  class PlayerAttackAction {
+    - damage: int
+    + PlayerAttackAction(String, Element, int, int)
+    + execute(AEntity user, AEntity target)
+  }
+
+  class BossAttackAction {
+    - multiplier: double
+    + BossAttackAction(String, Element, int, double)
+    + execute(AEntity user, AEntity target)
+  }
+
+  class BossDefendAction {
+    - duration: int
+    - blockAmount: int
+    + BossDefendAction(String, int, int, int)
+    + execute(AEntity user, AEntity target)
+  }
+
+  class BossHealAction {
+    - multiplier: double
+    + BossHealAction(String, Element, int, double)
+    + execute(AEntity user, AEntity target)
+  }
+
+  class PlayerHealSpell {
+    - healAmount: int
+    + PlayerHealSpell(String, Element, int, int)
+    + execute(AEntity user, AEntity target)
+  }
+
+  class PlayerDefendSpell {
+    - duration: int
+    - blockAmount: int
+    + PlayerDefendSpell(String, Element, int, int, int)
+    + execute(AEntity user, AEntity target)
+  }
+
+  class FireSpell
+  class WaterSpell
+  class PlantSpell
+}
+
+package "status" {
+  interface IStatusEffect {
+    + modifyDamageDealt(int): int
+    + modifyDamageTaken(int): int
+    + onTurnEnd(AEntity)
+    + onTurnStart(AEntity)
+    + getDuration(): int
+    + updateDuration()
+    + isDone(): boolean
+    + getName(): String
+  }
+
+  class WeakenStatus {
+    - duration: int
+    - weakenMultiplier: double
+    + WeakenStatus(int, double)
+    + modifyDamageTaken(int): int
+  }
+
+  class DefendStatus {
+    - duration: int
+    - blockAmount: int
+    + DefendStatus(int, int)
+    + modifyDamageTaken(int): int
+  }
+
+  class PoisonStatus
+  class EntraveStatus
+  class BoostStatus
+}
+
+package "managers" {
+  class BattleManager {
+    - player: Player
+    - boss: ABoss
+    - turnNumber: int
+    - actionsUsedHistory: List<AAction>
+    + executeTurn(AAction)
+    + isBattleOver(): boolean
+  }
+
+  class StageManager {
+    - unlockedActions: List<AAction>
+    - bossList: List<ABoss>
+    + getNextBoss(): ABoss
+    + getUnlockedActions(): List<AAction>
+  }
+
+  class SuccessTracker
+}
+
+package "view" {
+  class ConsoleView {
+    - scanner: Scanner
+    - out: PrintStream
+    + displayWelcomeMessage()
+    + displayBattleStart(ABoss)
+    + displayTurnInfo(Player, ABoss, int)
+  }
+
+  class GameView
+  class GameWindow
+}
+
+package "controller" {
+  class BattleController {
+    - playerName: Label
+    - playerHp: Label
+    - enemyName: Label
+    - enemyHp: Label
+    - playerSprite: ImageView
+    - enemySprite: ImageView
+    - actionsBox: VBox
+    - turnLabel: Label
+    - messageLabel: Label
+    - player: Player
+    - boss: ABoss
+    - battleManager: BattleManager
+    + initialize()
+    + endBattle()
+  }
+
+  class GameEngine
+}
+
+' Inheritance
+AEntity <|-- ABoss
+AEntity <|-- Player
+ABoss <|-- FireElementalBoss
+ABoss <|-- PlantElementalBoss
+AAction <|-- PlayerAttackAction
+AAction <|-- BossAttackAction
+AAction <|-- BossDefendAction
+AAction <|-- BossHealAction
+AAction <|-- PlayerHealSpell
+AAction <|-- PlayerDefendSpell
+AAction <|-- FireSpell
+AAction <|-- WaterSpell
+AAction <|-- PlantSpell
+
+' Associations
+BattleManager --> Player : manages
+BattleManager --> ABoss : manages
+StageManager --> AAction : provides
+StageManager --> ABoss : provides
+BattleController --> Player
+BattleController --> ABoss
+BattleController --> BattleManager
+ConsoleView --> Player
+ConsoleView --> ABoss
+
+@enduml
