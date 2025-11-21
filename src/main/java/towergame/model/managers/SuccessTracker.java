@@ -23,14 +23,14 @@ public class SuccessTracker {
 
         String bossName = boss.getName(); // On récupère le nom du boss
 
-        // --- Succès Spécifiques au Golem ---
-        if (bossName.equals("Golem de Pierre")) {
+        // --- Succès Spécifiques à l'Élémentaire de Feu ---
+        if (bossName.equals("Fire Elemental")) {
 
             if (turnNumber <= 8) {
-                System.out.println("SUCCÈS : Briseur de Pierre (Golem battu en 8 tours ou moins !)");
+                System.out.println("SUCCÈS : Extincteur (Élémentaire de Feu battu en 8 tours ou moins !)");
             }
 
-            // (Ici, on vérifie si le joueur a utilisé l'élément WATER)
+            // Vérification pour le succès "Intouchable"
             boolean usedWater = false;
             for (AAction action : actionsUsedHistory) {
                 if (action.getElement() == Element.WATER) {
@@ -39,17 +39,10 @@ public class SuccessTracker {
                 }
             }
             if (!usedWater) {
-                System.out.println("SUCCÈS : Intouchable (Golem battu sans utiliser d'Eau !)");
+                System.out.println("SUCCÈS : Combat loyal (Élémentaire de Feu battu sans utiliser d'Eau !)");
             }
         }
-
-        // --- Succès Spécifiques au Dragon ---
-        if (bossName.equals("Dragon Ancien")) {
-            if (turnNumber <= 15) {
-                System.out.println("SUCCÈS : Dompteur de Dragon (Dragon battu en 15 tours ou moins !)");
-            }
-        }
-
+        
         // --- Succès Globaux (toujours vérifiés) ---
         if (player.getHp() == 1) {
             System.out.println("SUCCÈS DÉBLOQUÉ : Au Bord du Gouffre (Gagné avec 1 PV restant !)");

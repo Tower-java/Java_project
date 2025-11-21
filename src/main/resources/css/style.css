@@ -129,7 +129,7 @@ VBox, HBox {
     -fx-background-color: transparent;
 }
 
-/* Image views */
+/* ImageView styling */
 ImageView {
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0, 0, 3);
 }

@@ -2,28 +2,32 @@ package towergame.model.status;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-
-import towergame.model.status.IStatusEffect;
-import towergame.model.status.WeakenStatus;
+import towergame.model.actions.Element;
+import towergame.model.entities.AEntity;
 
 /**
  * Classe de test pour WeakenStatus.
- * Note: Le nom de la classe peut prêter à confusion. "Weaken" (Affaiblir) 
- * suggère que la cible subit PLUS de dégâts, mais l'implémentation actuelle
- * avec un multiplicateur < 1.0 fait qu'elle en subit MOINS. 
- * Ces tests valident le comportement tel qu'il est implémenté.
+ * "Weaken" (Affaiblir) signifie que la cible subit PLUS de dégâts.
+ * Un multiplicateur > 1.0 est attendu.
  */
 class WeakenStatusTest {
 
+    // Classe "stub" pour pouvoir instancier AEntity
+    private static class TestEntity extends AEntity {
+        public TestEntity() {
+            super("Test Dummy", 100, Element.NEUTRAL);
+        }
+    }
+
     @Test
-    void modifyDamageTaken_shouldReduceIncomingDamage() {
-        // Multiplicateur de 0.8, donc 20% de réduction de dégâts.
-        IStatusEffect weaken = new WeakenStatus(2, 0.8);
+    void modifyDamageTaken_shouldIncreaseIncomingDamage() {
+        // Multiplicateur de 1.5, donc 50% de dégâts en plus.
+        IStatusEffect weaken = new WeakenStatus(2, 1.5);
         int initialDamage = 50;
 
         int modifiedDamage = weaken.modifyDamageTaken(initialDamage);
 
-        assertEquals(40, modifiedDamage, "Les dégâts subis devraient être réduits à 80% de leur valeur initiale.");
+        assertEquals(75, modifiedDamage, "Les dégâts subis devraient être augmentés à 150% de leur valeur initiale.");
     }
 
     @Test
@@ -38,11 +42,51 @@ class WeakenStatusTest {
 
     @Test
     void modifyDamageDealt_shouldBeUnchanged() {
-        IStatusEffect weaken = new WeakenStatus(2, 0.8);
+        IStatusEffect weaken = new WeakenStatus(2, 1.5);
         int initialDamage = 50;
 
         int modifiedDamage = weaken.modifyDamageDealt(initialDamage);
 
         assertEquals(initialDamage, modifiedDamage, "WeakenStatus ne doit pas affecter les dégâts infligés.");
+    }
+
+    @Test
+    void duration_shouldDecreaseAndEffectShouldEnd() {
+        WeakenStatus weaken = new WeakenStatus(2, 1.5);
+
+        assertFalse(weaken.isDone());
+        assertEquals(2, weaken.getDuration());
+
+        weaken.updateDuration(); // Fin du tour 1
+        assertFalse(weaken.isDone());
+        assertEquals(1, weaken.getDuration());
+
+        weaken.updateDuration(); // Fin du tour 2
+        assertTrue(weaken.isDone());
+        assertEquals(0, weaken.getDuration());
+    }
+
+    @Test
+    void getName_shouldReturnCorrectName() {
+        WeakenStatus weaken = new WeakenStatus(1, 1.5);
+        assertEquals("Weaken", weaken.getName());
+    }
+
+    @Test
+    void onTurnStart_shouldHaveNoEffect() {
+        WeakenStatus weaken = new WeakenStatus(1, 1.5);
+        TestEntity entity = new TestEntity();
+        int initialHp = entity.getHp();
+        weaken.onTurnStart(entity);
+        assertEquals(initialHp, entity.getHp());
+    }
+
+    @Test
+    void onTurnEnd_shouldHaveNoEffect() {
+        WeakenStatus weaken = new WeakenStatus(1, 1.5);
+        TestEntity entity = new TestEntity();
+        int initialHp = entity.getHp();
+        weaken.onTurnEnd(entity);
+        assertEquals(initialHp, entity.getHp());
     }
 }

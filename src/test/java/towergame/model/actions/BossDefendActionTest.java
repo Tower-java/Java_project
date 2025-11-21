@@ -3,7 +3,8 @@ package towergame.model.actions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import towergame.model.entities.AEntity;
-import towergame.model.managers.World;
+import towergame.model.entities.FireElementalBoss;
+import towergame.model.status.DefendStatus;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,31 +26,29 @@ class BossDefendActionTest {
     @BeforeEach
     void setUp() {
         user = new TestEntity("Test Boss", 500);
-        // Initialise le monde pour que les statuts puissent y être ajoutés
-        new World();
         target = new TestEntity("Unused Target", 100);
     }
 
     @Test
-    void execute_shouldAddDefendStatusToUserWithCorrectParameters() {
+    void execute_whenReady_shouldAddDefendStatusToUser() {
         // Arrange
         int duration = 3;
         int blockAmount = 50;
         BossDefendAction defendAction = new BossDefendAction("Barrière Magique", 5, duration, blockAmount);
+        assertTrue(user.getActiveStatus().isEmpty(), "L'utilisateur ne doit avoir aucun statut au départ.");
 
         // Act
         defendAction.execute(user, target);
 
         // Assert
-        // On vérifie que le statut a été ajouté en testant son effet.
-        // Un statut de défense devrait réduire les dégâts subis.
-        int initialHp = user.getHp();
-        int damageToTake = 100;
-        
-        // Simule la prise de dégâts alors que le statut est actif
-        user.takeDamage(damageToTake);
-        
-        assertEquals(initialHp - (damageToTake - blockAmount), user.getHp(), "Les dégâts subis devraient être réduits par le montant de blocage du statut de défense.");
+        // On vérifie directement que le statut a été ajouté à l'utilisateur.
+        assertEquals(1, user.getActiveStatus().size(), "Un statut doit avoir été ajouté à l'utilisateur.");
+        assertTrue(user.getActiveStatus().get(0) instanceof DefendStatus, "Le statut ajouté doit être un DefendStatus.");
+
+        // On vérifie que les paramètres du statut sont corrects.
+        DefendStatus status = (DefendStatus) user.getActiveStatus().get(0);
+        assertEquals(duration, status.getDuration(), "La durée du statut doit correspondre à celle de l'action.");
+        assertEquals(blockAmount, status.getDamageBlockAmount(), "Le montant de blocage du statut doit correspondre à celui de l'action.");
     }
 
     @Test
@@ -69,5 +68,45 @@ class BossDefendActionTest {
         defendAction.updateCooldown(); // Cooldown restant: 3
         defendAction.updateCooldown(); // Cooldown restant: 2
         assertFalse(defendAction.isReady(), "L'action ne devrait pas être prête après 2 tours.");
+        assertEquals(2, defendAction.getCurrentCooldown());
+    }
+
+    @Test
+    void execute_whenNotReady_shouldDoNothing() {
+        // Arrange
+        BossDefendAction defendAction = new BossDefendAction("Garde", 4, 2, 30);
+        defendAction.execute(user, target); // Première exécution pour démarrer le cooldown
+        assertFalse(defendAction.isReady(), "L'action doit être en cooldown.");
+        assertEquals(1, user.getActiveStatus().size(), "L'utilisateur doit avoir 1 statut après la première exécution.");
+
+        // Act
+        defendAction.execute(user, target); // On tente d'exécuter à nouveau
+
+        // Assert
+        assertEquals(1, user.getActiveStatus().size(), "Aucun nouveau statut ne doit être ajouté si l'action est en cooldown.");
+    }
+
+    @Test
+    void getBlockAmount_shouldReturnCorrectValue() {
+        // Arrange
+        int blockAmount = 75;
+        BossDefendAction defendAction = new BossDefendAction("Mur de pierre", 5, 2, blockAmount);
+
+        // Act & Assert
+        assertEquals(blockAmount, defendAction.getBlockAmount(), "Le getter getBlockAmount doit retourner la valeur définie dans le constructeur.");
+    }
+
+    @Test
+    void execute_shouldWorkWithRealBossInstance() {
+        // Arrange
+        FireElementalBoss realBoss = new FireElementalBoss();
+        BossDefendAction defendAction = new BossDefendAction("Carapace", 4, 2, 30);
+
+        // Act
+        defendAction.execute(realBoss, target);
+
+        // Assert
+        assertEquals(1, realBoss.getActiveStatus().size(), "Le vrai boss doit recevoir le statut de défense.");
+        assertTrue(realBoss.hasEffect("Defend"), "Le statut 'Defend' doit être actif sur le boss.");
     }
 }

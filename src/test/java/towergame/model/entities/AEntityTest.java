@@ -53,6 +53,13 @@ class AEntityTest {
     }
 
     @Test
+    void isAlive_shouldReturnFalse_whenHpIsZero() {
+        assertTrue(entity.isAlive(), "L'entité doit être vivante au départ.");
+        entity.takeDamage(100);
+        assertFalse(entity.isAlive(), "L'entité ne doit plus être vivante quand ses PV sont à 0.");
+    }
+
+    @Test
     void updateStatusEffects_shouldRemoveExpiredEffects() {
         // Arrange
         IStatusEffect shortStatus = new PoisonStatus(1, 5); // Durée de 1 tour
@@ -86,6 +93,13 @@ class AEntityTest {
 
         assertEquals(85, entity.getHp(), "Les dégâts subis doivent être réduits par le DefendStatus.");
     }
+
+    @Test
+    void addStatus_shouldAddEffectToList() {
+        assertTrue(entity.getActiveStatus().isEmpty(), "La liste des statuts doit être vide au départ.");
+        entity.addStatus(new PoisonStatus(2, 5));
+        assertEquals(1, entity.getActiveStatus().size(), "La liste des statuts doit contenir un élément après ajout.");
+    }
     
     @Test
     void hasEffect_shouldReturnTrueForActiveEffect() {
@@ -96,5 +110,14 @@ class AEntityTest {
     @Test
     void hasEffect_shouldReturnFalseForInactiveEffect() {
         assertFalse(entity.hasEffect("Poison"), "hasEffect doit retourner false pour un statut non actif.");
+    }
+
+    @Test
+    void getters_shouldReturnCorrectValues() {
+        assertEquals("Test Entity", entity.getName());
+        assertEquals(100, entity.getMaxHp());
+        assertEquals(100, entity.getHp());
+        assertEquals(Element.NEUTRAL, entity.getElement());
+        assertNotNull(entity.getActiveStatus());
     }
 }

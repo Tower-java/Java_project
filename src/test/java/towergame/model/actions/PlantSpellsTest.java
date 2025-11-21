@@ -2,11 +2,8 @@ package towergame.model.actions;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import towergame.model.entities.FireElementalBoss;
 import towergame.model.entities.Player;
-import towergame.model.status.Element;
-import towergame.model.status.WeakenStatus;
+import towergame.model.entities.FireElementalBoss;
 
 import static org.junit.jupiter.api.Assertions.*;
 

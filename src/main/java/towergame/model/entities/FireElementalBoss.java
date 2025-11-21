@@ -1,8 +1,6 @@
 package towergame.model.entities;
 
 import towergame.model.actions.*;
-import towergame.model.entities.Player;
-import towergame.view.ConsoleView;
 
 import java.util.List;
 
@@ -49,39 +47,24 @@ public class FireElementalBoss extends ABoss {
         this.setActionScript(script);
     }
 
-    /**
-     * Calcule le modificateur de dégâts basé sur les résistances/faiblesses
-     * élémentaires
-     * 
-     * @param attackElement L'élément de l'attaque
-     * @return Le modificateur de dégâts (0.5 = résistance, 1.0 = normal, 1.5 =
-     *         faiblesse)
-     */
-
-    /**
-     * Vérifie si l'attaque déclenche une résistance
-     */
-    public boolean isResistant(Element attackElement) {
-        return attackElement == Element.FIRE || attackElement == Element.PLANT;
+    // On définit un type pour les événements spéciaux que la gimmick peut
+    // déclencher
+    public enum GimmickEvent {
+        SHIELD_BROKEN,
+        ENRAGED,
+        NONE // Aucun événement spécial
     }
 
-    /**
-     * Vérifie si l'attaque déclenche une faiblesse
-     */
-    public boolean isWeak(Element attackElement) {
-        return attackElement == Element.WATER;
-    }
-
-    @Override
     /**
      * Gimmick : L'Élémentaire est invulnérable. Il perd son invulnérabilité s'il
      * est touché par une action de FIRE au Tour 3 OU au Tour 5.
-     * Il devient enragé si il est touché par une attaque WATER avant le tour 4, ou si
-     * ses PV tombent sous 20%.
+     * Il devient enragé s'il est touché par une attaque WATER avant le tour 4, ou
+     * si ses PV tombent sous 20%.
+     * 
+     * @return GimmickEvent pour signaler si un événement spécial a eu lieu.
      */
-    public void checkGimmick(Player player, AAction playerAction, int turnNumber) {
-        ConsoleView view = new ConsoleView(System.in, System.out);
-
+    // L'annotation @Override est retirée car la méthode n'est plus dans ABoss
+    public GimmickEvent checkGimmick(Player player, AAction playerAction, int turnNumber) {
         // --- GIMMICK 1 : Perdre l'invulnérabilité ---
         // On ne vérifie cette logique que si le boss est encore invulnérable.
         if (this.isInvulnerable) {
@@ -92,6 +75,7 @@ public class FireElementalBoss extends ABoss {
                     // Gimmick réussi !
                     System.out.println(this.getName() + " rugit alors que son bouclier magique se brise !");
                     this.isInvulnerable = false; // Désactive l'invulnérabilité
+                    return GimmickEvent.SHIELD_BROKEN;
                 }
             }
         }
@@ -102,16 +86,40 @@ public class FireElementalBoss extends ABoss {
         if (!this.isEnraged) {
             // Condition 1: Touché par une attaque WATER au tour 4 ou avant
             if (turnNumber <= 4 && playerAction.getElement() == Element.WATER) {
-                view.displayBossEnrage(this);
                 this.isEnraged = true;
+                return GimmickEvent.ENRAGED;
             }
             // Condition 2: PV en dessous de 20%
             // Note: Cette vérification se fait APRES que le joueur a attaqué, donc les PV
             // sont à jour.
             else if (this.getHp() <= this.getMaxHp() * 0.20) {
-                view.displayBossEnrage(this);
                 this.isEnraged = true;
+                return GimmickEvent.ENRAGED;
             }
         }
+
+        return GimmickEvent.NONE;
+    }
+
+    /**
+     * Vérifie si le boss résiste à un élément donné
+     * 
+     * @param element L'élément à vérifier
+     * @return true si le boss résiste, false sinon
+     */
+    public boolean isResistant(Element element) {
+        // Le boss de feu résiste aux attaques de feu
+        return element == Element.FIRE;
+    }
+
+    /**
+     * Vérifie si le boss est faible contre un élément donné
+     * 
+     * @param element L'élément à vérifier
+     * @return true si le boss est faible, false sinon
+     */
+    public boolean isWeak(Element element) {
+        // Le boss de feu est faible contre les attaques d'eau
+        return element == Element.WATER;
     }
 }

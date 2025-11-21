@@ -13,44 +13,38 @@ public class BattleManager {
     private ABoss boss;
     private int turnNumber;
     private List<AAction> actionsUsedHistory;
+    private AAction lastBossAction; // Track la dernière action du boss
 
     public BattleManager(Player player, ABoss boss) {
         this.player = player;
         this.boss = boss;
         this.turnNumber = 1;
         this.actionsUsedHistory = new ArrayList<>();
+        this.lastBossAction = null;
     }
 
     public void executeTurn(AAction playerAction) {
         this.actionsUsedHistory.add(playerAction);
 
-        // Vérifier les résistances/faiblesses avant d'exécuter l'action
-        if (boss instanceof towergame.model.entities.FireElementalBoss) {
-            towergame.model.entities.FireElementalBoss fireBoss = (towergame.model.entities.FireElementalBoss) boss;
-            towergame.view.ConsoleView view = new towergame.view.ConsoleView(System.in, System.out);
-
-            if (fireBoss.isResistant(playerAction.getElement())) {
-                view.displayResistanceMessage(fireBoss, playerAction.getName());
-            } else if (fireBoss.isWeak(playerAction.getElement())) {
-                view.displayWeaknessMessage(fireBoss, playerAction.getName());
-            }
-        }
-
         playerAction.execute(player, boss);
-        boss.checkGimmick(player, playerAction, turnNumber);
-
-        if (!boss.isAlive())
-            return;
 
         AAction bossAction = boss.getNextAction();
-        if (bossAction.isReady()) {
+        // Le boss ne riposte pas s'il est déjà mort.
+        if (boss.isAlive() && bossAction.isReady()) {
             this.actionsUsedHistory.add(bossAction);
+            this.lastBossAction = bossAction; // Track l'action du boss
             bossAction.execute(boss, player);
+        } else {
+            this.lastBossAction = null; // Pas d'action du boss
         }
 
-        if (!player.isAlive())
-            return;
+        // La logique de Gimmick doit être appelée après les deux actions
+        if (boss instanceof towergame.model.entities.FireElementalBoss) {
+            ((towergame.model.entities.FireElementalBoss) boss).checkGimmick(player, playerAction, turnNumber);
+        }
 
+        // Les effets de fin de tour (poison, cooldowns) doivent TOUJOURS être
+        // appliqués.
         updateTurnEndEffects();
         turnNumber++;
     }
@@ -84,5 +78,9 @@ public class BattleManager {
 
     public List<AAction> getActionsUsedHistory() {
         return actionsUsedHistory;
+    }
+
+    public AAction getLastBossAction() {
+        return lastBossAction;
     }
 }

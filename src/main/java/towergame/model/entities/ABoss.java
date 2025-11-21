@@ -30,8 +30,6 @@ public abstract class ABoss extends AEntity {
         this.actionScript = new ArrayList<>();
     }
 
-    public abstract void checkGimmick(Player player, AAction action, int turnNumber);
-
     @Override
     public void takeDamage(int amount) {
         if (this.isInvulnerable) {
@@ -74,5 +72,10 @@ public abstract class ABoss extends AEntity {
     // Méthode ajoutée pour les besoins des tests
     public void setInvulnerable(boolean isInvulnerable) {
         this.isInvulnerable = isInvulnerable;
+    }
+
+    // Méthode ajoutée pour les besoins des tests
+    public void setEnraged(boolean isEnraged) {
+        this.isEnraged = isEnraged;
     }
 }

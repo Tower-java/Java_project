@@ -30,16 +30,20 @@ public class StageManager {
         loadAllBosses();
     }
 
-    // Crée toutes les 9 actions du joueur ("grimoire")
+    // Crée toutes les actions du joueur
     private void loadAllActions() {
-
-        // On charge 4 sorts existants pour que le joueur puisse jouer.
+        // Charger TOUS les sorts disponibles (10 actions)
+        this.unlockedActions.add(new PlayerAttackAction("Attaque", Element.NEUTRAL, 0, 10));
         this.unlockedActions.add(new PlayerHealSpell("Soin Léger", Element.NEUTRAL, 25, 2));
         this.unlockedActions.add(new PlayerDefendSpell("Barrière", Element.NEUTRAL, 2, 3));
-        this.unlockedActions.add(new FireSpell("Fragiliser", Element.PLANT, 5, 3, 3)); // Applique Weaken
-        this.unlockedActions.add(new WaterSpell("Jet de Glace", Element.WATER, 5, 2, 2)); // Applique Entrave
+        this.unlockedActions.add(new PlayerBoostSpell("Fureur", Element.NEUTRAL, 3, 3));
+        this.unlockedActions.add(new FireSpell("Coup de Feu", Element.FIRE, 5, 0, 0));
+        this.unlockedActions.add(new WaterSpell("Jet de Glace", Element.WATER, 5, 0, 0));
+        this.unlockedActions.add(new PlantSpell("Lianes", Element.PLANT, 5, 0, 0));
+        this.unlockedActions.add(new FireHardSpell("Inferno", Element.FIRE, 10, 3, 2));
+        this.unlockedActions.add(new WaterHardSpell("Blizzard", Element.WATER, 10, 3, 2));
+        this.unlockedActions.add(new PlantHardSpell("Encracinement", Element.PLANT, 10, 3, 2));
 
-        // L'ancienne logique de fallback n'est plus nécessaire.
         if (this.unlockedActions.isEmpty()) {
             System.out.println("StageManager: ERREUR CRITIQUE - Aucun sort n'a pu être chargé !");
         }
@@ -58,8 +62,9 @@ public class StageManager {
 
     public ABoss getNextBoss() {
         if (currentStage < bossList.size()) {
-            ABoss nextBoss = bossList.get(currentStage);
-            currentStage++; // Correction: Incrémenter le stage pour le prochain appel
+            // On récupère le boss à l'index actuel, PUIS on incrémente pour le prochain
+            // appel.
+            ABoss nextBoss = bossList.get(currentStage++);
             return nextBoss;
         }
         return null; // Plus de boss

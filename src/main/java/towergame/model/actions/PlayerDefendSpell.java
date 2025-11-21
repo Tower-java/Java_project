@@ -21,4 +21,8 @@ public class PlayerDefendSpell extends AAction {
             startCooldown();
         }
     }
+
+    public int getDuration() {
+        return duration;
+    }
 }

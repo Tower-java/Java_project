@@ -14,10 +14,16 @@ public class BossDefendAction extends AAction {
         this.blockAmount = blockAmount;
     }
 
+    public int getBlockAmount(){
+        return this.blockAmount;
+    }
+
     @Override
     public void execute(AEntity user, AEntity target) {
-        user.addStatus(new DefendStatus(this.duration, this.blockAmount));
-        System.out.println(user.getName() + " utilise " + this.name + " !");
-        this.startCooldown();
+        if (isReady()) {
+            user.addStatus(new DefendStatus(this.duration, this.blockAmount));
+            System.out.println(user.getName() + " utilise " + this.name + " !");
+            this.startCooldown();
+        }
     }
 }

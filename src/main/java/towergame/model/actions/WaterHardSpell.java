@@ -3,7 +3,6 @@ package towergame.model.actions;
 import towergame.model.entities.AEntity;
 import towergame.model.status.*;
 
-
 public class WaterHardSpell extends AAction {
     private int baseDamage;
     private int statusDuration;
@@ -19,7 +18,7 @@ public class WaterHardSpell extends AAction {
         if (isReady()) {
             double finalDamage = baseDamage * this.element.getMultiplierAgainst(target.getElement());
             target.takeDamage((int) finalDamage);
-            EntraveStatus entrave = new EntraveStatus(statusDuration);
+            EntraveStatus entrave = new EntraveStatus(statusDuration, 0.8);
             target.addStatus(entrave);
             startCooldown();
         }

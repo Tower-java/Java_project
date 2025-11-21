@@ -79,4 +79,7 @@ public abstract class AAction {
     public int getCurrentCooldown() {
         return this.currentCooldown;
     }
+    public int getCooldownDuration(){
+        return this.cooldownDuration;
+    }
 }

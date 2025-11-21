@@ -11,6 +11,10 @@ public class DefendStatus implements IStatusEffect {
         this.duration = duration;
         this.damageBlockAmount = damageBlockAmount;
     }
+    public int getDamageBlockAmount(){
+        return this.damageBlockAmount;
+    }
+
 
     @Override
     public int modifyDamageDealt(int damage) {

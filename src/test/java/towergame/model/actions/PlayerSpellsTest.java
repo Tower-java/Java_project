@@ -49,17 +49,19 @@ class PlayerSpellsTest {
     }
 
     @Test
-    void playerBoostSpell_shouldApplyBoostStatusToUser() {
+    void playerBoostSpell_shouldIncreaseDamageMultiplierOnUser() {
         // Arrange
-        AAction boostSpell = new PlayerBoostSpell("Inspiration", Element.NEUTRAL, 3, 0);
+        // Le sort de boost dans le code utilise un multiplicateur fixe de 1.5
+        PlayerBoostSpell boostSpell = new PlayerBoostSpell("Inspiration", Element.NEUTRAL, 3, 0);
+        double initialMultiplier = player.getDamageMultiplier();
 
         // Act
         // La cible n'a pas d'importance, l'effet doit s'appliquer au lanceur (user)
         boostSpell.execute(player, target);
 
         // Assert
-        assertTrue(player.hasEffect("Boost"), "Le joueur (user) doit recevoir le statut 'Boost'.");
-        assertFalse(target.hasEffect("Boost"), "La cible (target) ne doit pas recevoir le statut.");
+        assertEquals(1.5, player.getDamageMultiplier(), "Le multiplicateur de dégâts du joueur doit passer à 1.5.");
+        assertNotEquals(initialMultiplier, player.getDamageMultiplier(), "Le multiplicateur doit avoir changé.");
     }
 
     @Test

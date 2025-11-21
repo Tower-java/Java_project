@@ -40,11 +40,7 @@ public class PoisonStatus implements IStatusEffect {
 
     @Override
     public void updateDuration() {
-        System.out.println("DEBUG: PoisonStatus.updateDuration() appelée. Durée AVANT: " + duration);
-        // Imprime la pile d'appels pour savoir QUI nous appelle
-        new Throwable("Stack trace pour updateDuration").printStackTrace(System.out);
         duration--;
-        System.out.println("DEBUG: Durée APRES: " + duration);
     }
 
     @Override

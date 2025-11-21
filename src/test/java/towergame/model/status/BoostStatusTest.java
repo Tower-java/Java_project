@@ -3,6 +3,8 @@ package towergame.model.status;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import towergame.model.actions.Element;
+import towergame.model.entities.AEntity;
 import towergame.model.status.BoostStatus;
 
 // Supposition : 'StatusEffect' est une classe parente ou interface pour BoostStatus. 
@@ -12,6 +14,13 @@ import towergame.model.status.BoostStatus;
  * Vérifie la modification des dégâts et la gestion de la durée.
  */
 class BoostStatusTest {
+
+    // Classe "stub" pour pouvoir instancier AEntity
+    private static class TestEntity extends AEntity {
+        public TestEntity() {
+            super("Test Dummy", 100, Element.NEUTRAL);
+        }
+    }
 
     @Test
     void modifyDamageDealt_shouldReturnBoostedValue_forPositiveBoost() {
@@ -81,5 +90,36 @@ class BoostStatusTest {
         boost.updateDuration(); // Tour supplémentaire
         assertTrue(boost.isDone(), "L'effet doit rester terminé.");
         assertEquals(-1, boost.getDuration(), "La durée peut devenir négative, mais l'effet reste terminé.");
+    }
+
+    @Test
+    void getName_shouldReturnCorrectName() {
+        BoostStatus boost = new BoostStatus(1, 1.0);
+        assertEquals("Boost", boost.getName(), "Le nom du statut doit être 'Boost'.");
+    }
+
+    @Test
+    void onTurnStart_shouldHaveNoEffect() {
+        // Arrange
+        BoostStatus boost = new BoostStatus(1, 1.5);
+        TestEntity entity = new TestEntity();
+        int initialHp = entity.getHp();
+
+        // Act
+        boost.onTurnStart(entity);
+
+        // Assert
+        assertEquals(initialHp, entity.getHp(), "onTurnStart ne doit pas modifier les PV de l'entité.");
+    }
+
+    @Test
+    void onTurnEnd_shouldHaveNoEffect() {
+        BoostStatus boost = new BoostStatus(1, 1.5);
+        TestEntity entity = new TestEntity();
+        int initialHp = entity.getHp();
+
+        boost.onTurnEnd(entity);
+
+        assertEquals(initialHp, entity.getHp(), "onTurnEnd ne doit pas modifier les PV de l'entité.");
     }
 }

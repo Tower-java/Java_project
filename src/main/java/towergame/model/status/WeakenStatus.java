@@ -19,9 +19,8 @@ public class WeakenStatus implements IStatusEffect {
 
     @Override
     public int modifyDamageTaken(int damage) {
-        // La cible est affaiblie, elle subit donc le double des dégâts.
-        // Le weakenMultiplier n'est plus utilisé ici, on pourrait le supprimer.
-        return damage * 2;
+        // La cible est affaiblie, elle subit donc plus de dégâts.
+        return (int) (damage * weakenMultiplier);
     }
 
     @Override

@@ -10,6 +10,8 @@ import java.util.ArrayList;
 public class Player extends AEntity {
     // Attributs
     private List<AAction> equippedActions;
+    private double damageMultiplier = 1.0;
+    private int damageBoostDuration = 0;
 
     // Constructeur
     /**
@@ -44,4 +46,35 @@ public class Player extends AEntity {
         return this.equippedActions;
     }
 
+    /**
+     * Applique un boost de dégâts au joueur pour une certaine durée.
+     * Si un boost est déjà actif, celui-ci est remplacé par le nouveau.
+     * @param multiplier Le multiplicateur de dégâts (ex: 1.5 pour +50%).
+     * @param duration Le nombre de tours pendant lequel le boost est actif.
+     */
+    public void applyDamageBoost(double multiplier, int duration) {
+        this.damageMultiplier = multiplier;
+        this.damageBoostDuration = duration;
+    }
+
+    /**
+     * Récupère le multiplicateur de dégâts actuel du joueur.
+     * @return Le multiplicateur de dégâts.
+     */
+    public double getDamageMultiplier() {
+        return this.damageMultiplier;
+    }
+
+    /**
+     * Met à jour les statuts du joueur à la fin de son tour.
+     * (Par exemple, réduit la durée des boosts).
+     */
+    public void updateStatusEffects() {
+        if (this.damageBoostDuration > 0) {
+            this.damageBoostDuration--;
+            if (this.damageBoostDuration == 0) {
+                this.damageMultiplier = 1.0; // Réinitialise le boost
+            }
+        }
+    }
 }

@@ -72,4 +72,37 @@ class PoisonStatusTest {
 
         assertEquals(initialDamage, modifiedDamage, "PoisonStatus ne doit pas modifier les dégâts subis directement.");
     }
+
+    @Test
+    void getName_shouldReturnCorrectName() {
+        IStatusEffect poison = new PoisonStatus(1, 5);
+        assertEquals("Poison", poison.getName(), "Le nom du statut doit être 'Poison'.");
+    }
+
+    @Test
+    void onTurnStart_shouldHaveNoEffect() {
+        IStatusEffect poison = new PoisonStatus(1, 5);
+        int initialHp = entity.getHp();
+
+        poison.onTurnStart(entity);
+
+        assertEquals(initialHp, entity.getHp(), "onTurnStart ne doit pas modifier les PV de l'entité.");
+    }
+
+    @Test
+    void status_shouldBeRemoved_whenDurationIsOver() {
+        // Arrange
+        IStatusEffect poison = new PoisonStatus(1, 5);
+        entity.addStatus(poison);
+        assertEquals(1, entity.getActiveStatus().size());
+
+        // Act
+        entity.updateStatusEffects(); // Le poison fait effet, la durée passe à 0
+
+        // Assert
+        assertEquals(0, poison.getDuration(), "La durée doit être de 0.");
+        assertTrue(poison.isDone(), "Le statut doit être considéré comme terminé.");
+        // La suppression effective est gérée par AEntity, on vérifie que le statut est bien marqué comme terminé.
+        assertTrue(entity.getActiveStatus().isEmpty(), "Le statut expiré doit être retiré de la liste de l'entité.");
+    }
 }
