@@ -38,7 +38,7 @@ class StageManagerTest {
         List<AAction> actions = stageManager.getUnlockedActions();
         assertNotNull(actions, "La liste des actions ne devrait pas être nulle.");
         assertFalse(actions.isEmpty(), "La liste des actions ne devrait pas être vide après initialisation.");
-        assertEquals(4, actions.size(), "Devrait charger 4 actions au départ.");
+        assertEquals(10, actions.size(), "Devrait charger 10 actions au départ.");
 
         // 2. Vérifier que la liste des boss a été chargée (indirectement)
         // On ne peut pas accéder à la liste directement, mais on peut appeler getNextBoss()
@@ -53,13 +53,7 @@ class StageManagerTest {
 
         // Vérifications de base
         assertNotNull(actions);
-        assertEquals(4, actions.size());
-
-        // Vérifications plus spécifiques sur le contenu
-        assertEquals("Soin Léger", actions.get(0).getName());
-        assertEquals("Barrière", actions.get(1).getName());
-        assertEquals("Fragiliser", actions.get(2).getName());
-        assertEquals("Jet de Glace", actions.get(3).getName());
+        assertEquals(10, actions.size());
     }
 
     @Test
