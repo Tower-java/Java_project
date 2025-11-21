@@ -100,26 +100,4 @@ public class FireElementalBoss extends ABoss {
 
         return GimmickEvent.NONE;
     }
-
-    /**
-     * Vérifie si le boss résiste à un élément donné
-     * 
-     * @param element L'élément à vérifier
-     * @return true si le boss résiste, false sinon
-     */
-    public boolean isResistant(Element element) {
-        // Le boss de feu résiste aux attaques de feu
-        return element == Element.FIRE;
-    }
-
-    /**
-     * Vérifie si le boss est faible contre un élément donné
-     * 
-     * @param element L'élément à vérifier
-     * @return true si le boss est faible, false sinon
-     */
-    public boolean isWeak(Element element) {
-        // Le boss de feu est faible contre les attaques d'eau
-        return element == Element.WATER;
-    }
 }
