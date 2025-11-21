@@ -1,5 +1,5 @@
 @startuml
-"Generated detailed class diagram for Tower Battle project"
+' Generated detailed class diagram for Tower Battle project
 skinparam classAttributeIconSize 0
 
 package "entities" {
