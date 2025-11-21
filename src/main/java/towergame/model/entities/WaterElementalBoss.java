@@ -7,8 +7,16 @@ import towergame.model.actions.BossAttackAction;
 import towergame.model.actions.BossDefendAction;
 import towergame.model.actions.Element;
 
+/**
+ * Représente le boss "Élémentaire d'eau".
+ * Ce boss possède une gimmick spécifique liée à son invulnérabilité et à un état enragé.
+ * Son script d'actions est basé sur des cycles de 4 tours.
+ */
 public class WaterElementalBoss extends ABoss {
-    // Constructeur
+    /**
+     * Construit un nouveau boss Élémentaire d'eau.
+     * Initialise ses statistiques, son état d'invulnérabilité et son script d'actions pour le combat.
+     */
     public WaterElementalBoss() {
         super("Élémentaire d'eau", 100, Element.WATER, 10, 10);
         // On active invulnérabilité
@@ -50,11 +58,21 @@ public class WaterElementalBoss extends ABoss {
         this.setActionScript(script);
     }
 
-    // On définit un type pour les événements spéciaux que la gimmick peut
-    // déclencher
+    /**
+     * Énumération des événements spéciaux pouvant être déclenchés par la gimmick du boss.
+     */
     public enum GimmickEvent {
+        /**
+         * Se déclenche lorsque le bouclier d'invulnérabilité du boss est brisé.
+         */
         SHIELD_BROKEN,
+        /**
+         * Se déclenche lorsque le boss entre en état de rage.
+         */
         ENRAGED,
+        /**
+         * Indique qu'aucun événement spécial ne s'est produit.
+         */
         NONE // Aucun événement spécial
     }
 
@@ -63,7 +81,9 @@ public class WaterElementalBoss extends ABoss {
      * est touché par une action de FIRE au Tour 1 OU au Tour 2.
      * Il devient enragé s'il est touché par une attaque FIRE après le tour 4, ou
      * si ses PV tombent sous 40%.
-     * 
+     * @param player Le joueur qui exécute l'action.
+     * @param playerAction L'action effectuée par le joueur ce tour-ci.
+     * @param turnNumber Le numéro du tour actuel.
      * @return GimmickEvent pour signaler si un événement spécial a eu lieu.
      */
     public GimmickEvent checkGimmick(Player player, AAction playerAction, int turnNumber) {
