@@ -7,6 +7,8 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -38,10 +40,13 @@ import towergame.model.actions.BossAttackAction;
 import towergame.model.actions.BossHealAction;
 import towergame.model.actions.BossDefendAction;
 import towergame.model.entities.ABoss;
+import towergame.model.entities.FireElementalBoss;
+import towergame.model.entities.WaterElementalBoss;
 import towergame.model.entities.Player;
 import towergame.model.managers.BattleManager;
 import towergame.model.managers.StageManager;
 import towergame.model.managers.SuccessTracker;
+import towergame.util.AudioManager;
 
 public class BattleController {
 
@@ -50,6 +55,12 @@ public class BattleController {
 
     @FXML
     private ImageView enemySprite;
+
+    @FXML
+    private ImageView arenaBackground;
+
+    @FXML
+    private StackPane battleArenaStack;
 
     @FXML
     private FlowPane actionsBox;
@@ -75,16 +86,21 @@ public class BattleController {
     @FXML
     private Label bossHpText;
 
+    @FXML
+    private VBox bossBox;
+
     private Player player;
     private ABoss boss;
     private BattleManager battleManager;
     private StringBuilder narrativeHistory = new StringBuilder();
     private Stage primaryStage;
+    private int currentPlayerSpriteThreshold = 100; // Tracking pour sprites Gandoulf
+    private StageManager stageManager;
 
     @FXML
     public void initialize() {
         try {
-            StageManager stageManager = new StageManager();
+            this.stageManager = new StageManager();
             player = new Player("Héros");
 
             // Charger TOUS les 10 sorts disponibles
@@ -99,6 +115,7 @@ public class BattleController {
             }
 
             battleManager = new BattleManager(player, boss);
+            playBattleMusic();
 
             // Initialiser l'affichage
             updateDisplay();
@@ -110,6 +127,12 @@ public class BattleController {
 
             // Charger les images si disponibles
             loadSprites();
+
+            // Initialiser la couleur du cadre du boss selon son type
+            // setBossBoxColor();
+
+            // Initialiser le seuil de sprite Gandoulf
+            currentPlayerSpriteThreshold = player.getCurrentSpriteThreshold();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -170,16 +193,13 @@ public class BattleController {
                 }
 
                 // Vérifier les résistances/faiblesses avant l'attaque
-                if (boss instanceof towergame.model.entities.FireElementalBoss) {
-                    towergame.model.entities.FireElementalBoss fireBoss = (towergame.model.entities.FireElementalBoss) boss;
-
-                    if (fireBoss.isResistant(action.getElement())) {
-                        addNarrativeMessage(boss.getName() + " resiste a " + action.getName()
-                                + " ! L'attaque n'est pas tres efficace...");
-                    } else if (fireBoss.isWeak(action.getElement())) {
-                        addNarrativeMessage(
-                                boss.getName() + " craint " + action.getName() + " ! C'est super efficace !");
-                    }
+                double multiplier = action.getElement().getMultiplierAgainst(boss.getElement());
+                if (multiplier == 0.5) {
+                    addNarrativeMessage(boss.getName() + " resiste a " + action.getName()
+                            + " ! L'attaque n'est pas tres efficace...");
+                } else if (multiplier == 2.0) {
+                    addNarrativeMessage(
+                            boss.getName() + " craint " + action.getName() + " ! C'est super efficace !");
                 }
 
                 // Animer l'attaque du joueur
@@ -194,6 +214,19 @@ public class BattleController {
 
                     updateDisplay();
 
+                    // Vérifier si le sprite du joueur doit changer (système Gandoulf)
+                    int newThreshold = player.getCurrentSpriteThreshold();
+                    if (currentPlayerSpriteThreshold != newThreshold) {
+                        currentPlayerSpriteThreshold = newThreshold;
+                        updatePlayerSpriteByHealth();
+                    }
+
+                    // VÉRIFIER SI LE BOSS EST MORT (one-shot)
+                    if (!boss.isAlive()) {
+                        showBossDeath();
+                        return;
+                    }
+
                     // Afficher le message de l'action du boss
                     // Afficher le message du tour du boss
                     addNarrativeMessage("--- TOUR DU BOSS ---");
@@ -204,18 +237,24 @@ public class BattleController {
                         addNarrativeMessage(bossMessage);
                     }
 
-                    // Afficher l'attaque du feu du boss avec animation
-                    showFireAttackEffect();
+                    // Afficher l'effet d'action du boss avec animation
+                    showBossActionEffect(bossAction);
 
-                    // Attendre la fin de l'animation du feu (~2s), puis afficher l'enrage
+                    // Attendre la fin de l'animation du feu/défense (~2s), puis afficher l'enrage
                     PauseTransition fireWaitPause = new PauseTransition(Duration.seconds(2.0));
                     fireWaitPause.setOnFinished(fireEnd -> {
                         // Vérifier si le boss vient d'entrer en rage et afficher immédiatement
-                        if (boss.isEnraged()) {
+                        // (mais seulement UNE FOIS - utiliser le flag spriteChangedForEnrage)
+                        if (boss.isEnraged() && !boss.hasSpriteChangedForEnrage()) {
                             addNarrativeMessage(boss.getName()
                                     + " ENTRE EN RAGE ! Ses attaques deviennent plus puissantes !");
-                            // Changer le sprite du boss avec transition
-                            changeBossSprite("/sprites/fire_boss_enrage.png");
+                            // Changer le sprite du boss avec transition en fonction du type de boss
+                            String enragedSpritePath = "/sprites/fire_boss_enrage.png"; // Défaut
+                            if (boss instanceof towergame.model.entities.WaterElementalBoss) {
+                                enragedSpritePath = "/sprites/Boss_d'eau_enragé.png";
+                            }
+                            changeBossSprite(enragedSpritePath);
+                            boss.markSpriteChangedForEnrage();
                         }
 
                         // Attendre que le joueur ait le temps de lire avant de réactiver les boutons
@@ -255,14 +294,64 @@ public class BattleController {
             playerSprite.setImage(new Image(pImg));
         }
 
-        InputStream eImg = getClass().getResourceAsStream("/sprites/fire_boss.png");
+        // Déterminer le type de boss et charger le sprite approprié
+        String bossSpritePath = "/sprites/fire_boss.png"; // Défaut
+        String bossType = boss.getClass().getSimpleName();
+        System.out.println("DEBUG: Boss type = " + bossType);
+
+        if (boss instanceof towergame.model.entities.WaterElementalBoss) {
+            bossSpritePath = "/sprites/Boss_d'eau.png";
+            System.out.println("DEBUG: Loading water boss sprite: " + bossSpritePath);
+        } else if (boss instanceof towergame.model.entities.FireElementalBoss) {
+            bossSpritePath = "/sprites/fire_boss.png";
+            System.out.println("DEBUG: Loading fire boss sprite: " + bossSpritePath);
+        }
+
+        InputStream eImg = getClass().getResourceAsStream(bossSpritePath);
         if (eImg != null) {
-            enemySprite.setImage(new Image(eImg));
+            Image bossSpriteImage = new Image(eImg);
+            enemySprite.setImage(bossSpriteImage);
+            // Sprite regarde vers la DROITE pour l'arène (pas de flip ou scaleX = 1)
+            enemySprite.setScaleX(1);
+            System.out.println("DEBUG: Boss sprite loaded and oriented correctly");
+        } else {
+            System.out.println("DEBUG: Boss sprite NOT FOUND: " + bossSpritePath);
         }
 
         InputStream fImg = getClass().getResourceAsStream("/sprites/fire_attack.png");
         if (fImg != null) {
             fireAttackImageView.setImage(new Image(fImg));
+        }
+
+        // Initialiser le sprite du joueur avec l'état de santé actuel
+        currentPlayerSpriteThreshold = player.getCurrentSpriteThreshold();
+        updatePlayerSpriteByHealth();
+
+        // Charger le background de l'arène
+        loadArenaBackground();
+    }
+
+    /**
+     * Charge le background de l'arène en fonction du type de boss
+     */
+    private void loadArenaBackground() {
+        String backgroundPath = null;
+
+        if (boss instanceof towergame.model.entities.FireElementalBoss) {
+            backgroundPath = "/sprites/background boss de feu.png";
+        } else if (boss instanceof towergame.model.entities.WaterElementalBoss) {
+            backgroundPath = "/sprites/background boss de glace.png";
+        }
+
+        if (backgroundPath != null) {
+            InputStream bgImg = getClass().getResourceAsStream(backgroundPath);
+            if (bgImg != null) {
+                Image backgroundImage = new Image(bgImg);
+                arenaBackground.setImage(backgroundImage);
+                System.out.println("DEBUG: Arena background loaded: " + backgroundPath);
+            } else {
+                System.out.println("DEBUG: Arena background NOT FOUND: " + backgroundPath);
+            }
         }
     }
 
@@ -283,6 +372,14 @@ public class BattleController {
                 // Changer l'image
                 enemySprite.setImage(newImage);
 
+                // Déterminer l'orientation correcte en fonction du type de boss
+                // Le sprite du boss d'eau (normal et enragé) doit faire face à gauche
+                if (boss instanceof towergame.model.entities.WaterElementalBoss) {
+                    enemySprite.setScaleX(-1); // Face à gauche (vers le héros)
+                } else {
+                    enemySprite.setScaleX(1); // Face à droite
+                }
+
                 // Transition de fade in
                 FadeTransition fadeIn = new FadeTransition(Duration.millis(300), enemySprite);
                 fadeIn.setFromValue(0.0);
@@ -292,6 +389,267 @@ public class BattleController {
 
             fadeOut.play();
         }
+    }
+
+    /**
+     * Affiche l'effet d'action du boss selon le type d'action
+     */
+    private void showBossActionEffect(AAction action) {
+        if (action instanceof towergame.model.actions.BossDefendAction) {
+            // Vérifier le type de boss pour déterminer l'animation de défense
+            String defendActionName = action.getName();
+            if (boss instanceof towergame.model.entities.WaterElementalBoss
+                    && "Carapace d'eau liquide".equals(defendActionName)) {
+                showBossWaterShieldEffect();
+            } else {
+                showBossDefendEffect();
+            }
+        } else if (action instanceof towergame.model.actions.BossAttackAction) {
+            // Vérifier le nom de l'action pour déterminer l'effet visuel
+            String actionName = action.getName();
+
+            // Actions du boss de feu
+            if ("Morsure".equals(actionName)) {
+                // Pour le boss de feu: affichage simple de la morsure
+                if (!(boss instanceof towergame.model.entities.WaterElementalBoss)) {
+                    showBossBiteEffect();
+                } else {
+                    // Pour le boss d'eau: afficher le sprite de morsure d'eau
+                    showBossWaterBiteEffect();
+                }
+            } else if ("Explosion".equals(actionName)) {
+                showBossExplosionEffect();
+            } else if ("Jet de Flammes".equals(actionName)) {
+                showBossFlameJetEffect();
+            } else if ("Trempette".equals(actionName)) {
+                showBossWaterSplashEffect();
+            } else if ("Éclaboussure mortelle".equals(actionName)) {
+                showBossDeadlySplashEffect();
+            } else {
+                showFireAttackEffect();
+            }
+        } else if (action instanceof towergame.model.actions.BossHealAction) {
+            showFireAttackEffect(); // Réutiliser l'animation d'attaque par défaut
+        } else {
+            showFireAttackEffect(); // Animation par défaut pour les autres actions
+        }
+    }
+
+    /**
+     * Affiche l'effet de jet de flammes du boss
+     */
+    private void showBossFlameJetEffect() {
+        // Charger l'image du jet de flammes (utilise fire_attack.png)
+        InputStream flameImg = getClass().getResourceAsStream("/sprites/fire_attack.png");
+        if (flameImg == null) {
+            return;
+        }
+
+        Image flameImage = new Image(flameImg);
+        fireAttackImageView.setImage(flameImage);
+
+        // Fade in
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(200), fireAttackImageView);
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
+
+        // Scale animation (agrandissement progressif)
+        ScaleTransition scale = new ScaleTransition(Duration.millis(400), fireAttackImageView);
+        scale.setFromX(0.6);
+        scale.setFromY(0.6);
+        scale.setToX(1.2);
+        scale.setToY(1.2);
+
+        // Rotation animation (rotation du jet)
+        RotateTransition rotate = new RotateTransition(Duration.millis(400), fireAttackImageView);
+        rotate.setFromAngle(-15);
+        rotate.setToAngle(15);
+        rotate.setCycleCount(2);
+        rotate.setAutoReverse(true);
+
+        // Parallel transition pour les animations simultanees
+        ParallelTransition parallel = new ParallelTransition(scale, rotate);
+
+        // Sequential transition : fade in, puis animations paralleles
+        SequentialTransition sequence = new SequentialTransition(fadeIn, parallel);
+
+        // Fade out après les animations
+        sequence.setOnFinished(e -> {
+            PauseTransition delay = new PauseTransition(Duration.millis(800));
+            delay.setOnFinished(f -> {
+                FadeTransition fadeOut = new FadeTransition(Duration.millis(300), fireAttackImageView);
+                fadeOut.setFromValue(1.0);
+                fadeOut.setToValue(0.0);
+                fadeOut.play();
+            });
+            delay.play();
+        });
+
+        sequence.play();
+    }
+
+    /**
+     * Affiche l'effet d'explosion du boss
+     */
+    private void showBossExplosionEffect() {
+        // Charger l'image de l'explosion (Boss_de_feu_explosion.png)
+        InputStream explosionImg = getClass().getResourceAsStream("/sprites/Boss_de_feu_explosion.png");
+        if (explosionImg == null) {
+            showFireAttackEffect(); // Fallback si l'image n'existe pas
+            return;
+        }
+
+        Image explosionImage = new Image(explosionImg);
+        fireAttackImageView.setImage(explosionImage);
+
+        // Fade in rapide
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(150), fireAttackImageView);
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
+
+        // Scale animation très agressif (explosion)
+        ScaleTransition scale = new ScaleTransition(Duration.millis(500), fireAttackImageView);
+        scale.setFromX(0.2);
+        scale.setFromY(0.2);
+        scale.setToX(1.3);
+        scale.setToY(1.3);
+        scale.setCycleCount(2);
+        scale.setAutoReverse(true);
+
+        // Vibration pour simuler le blast
+        TranslateTransition vibration = new TranslateTransition(Duration.millis(80), fireAttackImageView);
+        vibration.setFromX(-8);
+        vibration.setToX(8);
+        vibration.setCycleCount(6);
+        vibration.setAutoReverse(true);
+
+        // Parallel transition pour les animations simultanees
+        ParallelTransition parallel = new ParallelTransition(scale, vibration);
+
+        // Sequential transition : fade in, puis animations paralleles
+        SequentialTransition sequence = new SequentialTransition(fadeIn, parallel);
+
+        // Fade out après les animations
+        sequence.setOnFinished(e -> {
+            PauseTransition delay = new PauseTransition(Duration.millis(600));
+            delay.setOnFinished(f -> {
+                FadeTransition fadeOut = new FadeTransition(Duration.millis(300), fireAttackImageView);
+                fadeOut.setFromValue(1.0);
+                fadeOut.setToValue(0.0);
+                fadeOut.play();
+            });
+            delay.play();
+        });
+
+        sequence.play();
+    }
+
+    /**
+     * Affiche l'effet de morsure du boss avec animation
+     */
+    private void showBossBiteEffect() {
+        // Charger l'image de la morsure
+        InputStream biteImg = getClass().getResourceAsStream("/sprites/Morsure_boss_de_feu.png");
+        if (biteImg == null) {
+            showFireAttackEffect(); // Fallback si l'image n'existe pas
+            return;
+        }
+
+        Image biteImage = new Image(biteImg);
+        fireAttackImageView.setImage(biteImage);
+
+        // Fade in
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(200), fireAttackImageView);
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
+
+        // Scale animation (agrandissement rapide pour effet de morsure)
+        ScaleTransition scale = new ScaleTransition(Duration.millis(300), fireAttackImageView);
+        scale.setFromX(0.3);
+        scale.setFromY(0.3);
+        scale.setToX(1.1);
+        scale.setToY(1.1);
+
+        // Vibration animation (tremblements pour intensité)
+        TranslateTransition vibration = new TranslateTransition(Duration.millis(100), fireAttackImageView);
+        vibration.setFromX(-5);
+        vibration.setToX(5);
+        vibration.setCycleCount(4);
+        vibration.setAutoReverse(true);
+
+        // Parallel transition pour les animations simultanees
+        ParallelTransition parallel = new ParallelTransition(scale, vibration);
+
+        // Sequential transition : fade in, puis animations paralleles
+        SequentialTransition sequence = new SequentialTransition(fadeIn, parallel);
+
+        // Fade out après les animations
+        sequence.setOnFinished(e -> {
+            PauseTransition delay = new PauseTransition(Duration.millis(800));
+            delay.setOnFinished(f -> {
+                FadeTransition fadeOut = new FadeTransition(Duration.millis(300), fireAttackImageView);
+                fadeOut.setFromValue(1.0);
+                fadeOut.setToValue(0.0);
+                fadeOut.play();
+            });
+            delay.play();
+        });
+
+        sequence.play();
+    }
+
+    /**
+     * Affiche l'effet de défense du boss avec animation du bouclier
+     */
+    private void showBossDefendEffect() {
+        // Charger l'image du bouclier
+        InputStream shieldImg = getClass().getResourceAsStream("/sprites/Bouclier_boss_de_feu.png");
+        if (shieldImg == null) {
+            showFireAttackEffect(); // Fallback si l'image n'existe pas
+            return;
+        }
+
+        Image shieldImage = new Image(shieldImg);
+        fireAttackImageView.setImage(shieldImage);
+
+        // Fade in
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(200), fireAttackImageView);
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
+
+        // Scale animation (agrandissement pour effet de bouclier)
+        ScaleTransition scale = new ScaleTransition(Duration.millis(500), fireAttackImageView);
+        scale.setFromX(0.5);
+        scale.setFromY(0.5);
+        scale.setToX(1.0);
+        scale.setToY(1.0);
+
+        // Rotation animation (légère rotation du bouclier)
+        RotateTransition rotate = new RotateTransition(Duration.millis(600), fireAttackImageView);
+        rotate.setFromAngle(-20);
+        rotate.setToAngle(20);
+        rotate.setCycleCount(2);
+        rotate.setAutoReverse(true);
+
+        // Parallel transition pour les animations simultanees
+        ParallelTransition parallel = new ParallelTransition(scale, rotate);
+
+        // Sequential transition : fade in, puis animations paralleles
+        SequentialTransition sequence = new SequentialTransition(fadeIn, parallel);
+
+        // Fade out après les animations
+        sequence.setOnFinished(e -> {
+            PauseTransition delay = new PauseTransition(Duration.millis(800));
+            delay.setOnFinished(f -> {
+                FadeTransition fadeOut = new FadeTransition(Duration.millis(300), fireAttackImageView);
+                fadeOut.setFromValue(1.0);
+                fadeOut.setToValue(0.0);
+                fadeOut.play();
+            });
+            delay.play();
+        });
+
+        sequence.play();
     }
 
     /**
@@ -341,6 +699,66 @@ public class BattleController {
     }
 
     private void endBattle() {
+        // Vérifier s'il y a un boss suivant
+        ABoss nextBoss = stageManager.getNextBoss();
+
+        if (nextBoss != null && player.isAlive()) {
+            // Il y a un boss suivant, charger le combat suivant avec transition en fondu
+            loadNextArena(nextBoss);
+        } else {
+            // Pas de boss suivant ou le joueur est mort, afficher l'écran de fin
+            showEndScreen();
+        }
+
+        // Vérifier les succès
+        SuccessTracker.checkAchievements(player, boss, battleManager.getTurnNumber(),
+                battleManager.getActionsUsedHistory());
+    }
+
+    private void loadNextArena(ABoss nextBoss) {
+        // Fade out de l'arène actuelle
+        FadeTransition fadeOut = new FadeTransition(Duration.seconds(1.0), enemySprite);
+        fadeOut.setFromValue(1.0);
+        fadeOut.setToValue(0.0);
+
+        fadeOut.setOnFinished(e -> {
+            try {
+                // Réinitialiser la vie du joueur pour le nouveau combat
+                player.heal(player.getMaxHp() - player.getHp());
+
+                // Réinitialiser le combat avec le nouveau boss
+                boss = nextBoss;
+                battleManager = new BattleManager(player, boss);
+                playBattleMusic();
+
+                // Réinitialiser les contrôles
+                currentPlayerSpriteThreshold = player.getCurrentSpriteThreshold();
+                narrativeHistory = new StringBuilder();
+                actionsBox.getChildren().clear();
+
+                // Recharger les sprites et l'affichage
+                updateDisplay();
+                setupActionButtons();
+                loadSprites();
+
+                addNarrativeMessage("--- COMBAT SUIVANT ---");
+                addNarrativeMessage("Nouvel adversaire : " + boss.getName() + " !");
+
+                // Fade in de la nouvelle arène
+                FadeTransition fadeIn = new FadeTransition(Duration.seconds(1.0), enemySprite);
+                fadeIn.setFromValue(0.0);
+                fadeIn.setToValue(1.0);
+                fadeIn.play();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                showAlert("Erreur", "Erreur lors du chargement de la nouvelle arène : " + ex.getMessage());
+            }
+        });
+
+        fadeOut.play();
+    }
+
+    private void showEndScreen() {
         String message = player.isAlive()
                 ? "Victoire ! " + boss.getName() + " a été vaincu !"
                 : "Défaite... " + player.getName() + " est tombé au combat.";
@@ -391,10 +809,6 @@ public class BattleController {
             // Fallback vers l'Alert si stage n'est pas disponible
             showAlert("Combat terminé", message + "\nCombat terminé en " + battleManager.getTurnNumber() + " tours.");
         }
-
-        // Vérifier les succès
-        SuccessTracker.checkAchievements(player, boss, battleManager.getTurnNumber(),
-                battleManager.getActionsUsedHistory());
     }
 
     private void restartGame() {
@@ -490,6 +904,9 @@ public class BattleController {
         // Ajouter le message de narration au journal
         addNarrativeMessage(player.getName() + " utilise " + actionName + " !");
 
+        // Afficher le sprite de l'attaque du joueur
+        showPlayerActionSprite(actionName);
+
         // Animation de scale sur le sprite du joueur
         ScaleTransition scale = new ScaleTransition(Duration.millis(300), playerSprite);
         scale.setFromX(1.0);
@@ -499,6 +916,87 @@ public class BattleController {
         scale.setCycleCount(2);
         scale.setAutoReverse(true);
         scale.play();
+    }
+
+    /**
+     * Affiche le sprite de l'action du joueur dans la zone centrale
+     */
+    private void showPlayerActionSprite(String actionName) {
+        // Mapper le nom de l'action au fichier sprite
+        String spritePath = getPlayerActionSpritePath(actionName);
+        if (spritePath == null) {
+            return; // Si pas de sprite, ne rien faire
+        }
+
+        InputStream actionImg = getClass().getResourceAsStream(spritePath);
+        if (actionImg == null) {
+            return; // Sprite non trouvé
+        }
+
+        Image actionImage = new Image(actionImg);
+        fireAttackImageView.setImage(actionImage);
+
+        // Fade in
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(200), fireAttackImageView);
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
+
+        // Scale animation (agrandissement)
+        ScaleTransition scale = new ScaleTransition(Duration.millis(400), fireAttackImageView);
+        scale.setFromX(0.5);
+        scale.setFromY(0.5);
+        scale.setToX(1.0);
+        scale.setToY(1.0);
+
+        // Parallel transition pour les animations simultanees
+        ParallelTransition parallel = new ParallelTransition(scale);
+
+        // Sequential transition : fade in, puis animations paralleles
+        SequentialTransition sequence = new SequentialTransition(fadeIn, parallel);
+
+        // Fade out après les animations
+        sequence.setOnFinished(e -> {
+            PauseTransition delay = new PauseTransition(Duration.millis(600));
+            delay.setOnFinished(f -> {
+                FadeTransition fadeOut = new FadeTransition(Duration.millis(300), fireAttackImageView);
+                fadeOut.setFromValue(1.0);
+                fadeOut.setToValue(0.0);
+                fadeOut.play();
+            });
+            delay.play();
+        });
+
+        sequence.play();
+    }
+
+    /**
+     * Retourne le chemin du sprite en fonction du nom de l'action du joueur
+     */
+    private String getPlayerActionSpritePath(String actionName) {
+        switch (actionName) {
+            case "Attaque":
+                return "/sprites/Attaque.png";
+            case "Coup de Feu":
+                return "/sprites/Coup de Feu.png";
+            case "Inferno":
+                return "/sprites/Inferno.png";
+            case "Blizzard":
+                return "/sprites/Blizzard.png";
+            case "Jet de glace":
+                return "/sprites/Jet de glace.png";
+            case "Lianes":
+                return "/sprites/Lianes.png";
+            case "Enracinement":
+                return "/sprites/Enracinement.png";
+            case "Soin Léger":
+                return "/sprites/Soin Léger.png";
+            case "Barrière":
+                return "/sprites/Barrière.png";
+            case "Fureur":
+                return "/sprites/Fureur.png";
+            default:
+                return null; // Pas de sprite pour cette action
+        }
     }
 
     /**
@@ -642,5 +1140,315 @@ public class BattleController {
     public void clearNarrativeHistory() {
         narrativeHistory = new StringBuilder();
         narrativeLabel.setText("En attente d'action...");
+    }
+
+    /**
+     * Met à jour le sprite du joueur en fonction de sa santé
+     * Sprites Gandoulf: 100% (Frais), 75% (Légers), 50% (Importants), 25%
+     * (Critiques)
+     */
+    private void updatePlayerSpriteByHealth() {
+        int threshold = player.getCurrentSpriteThreshold();
+        String spritePath = "";
+
+        switch (threshold) {
+            case 100:
+                spritePath = "/sprites/GandoulfFrais.png";
+                break;
+            case 75:
+                spritePath = "/sprites/GandoulfDegatsLegers.png";
+                break;
+            case 50:
+                spritePath = "/sprites/GandoulfDegatsImportants.png";
+                break;
+            case 25:
+                spritePath = "/sprites/GandoulfDegatsCritiques.png";
+                break;
+        }
+
+        changePlayerSprite(spritePath);
+    }
+
+    /**
+     * Change le sprite du joueur avec une transition de fade
+     */
+    private void changePlayerSprite(String spritePath) {
+        InputStream imgStream = getClass().getResourceAsStream(spritePath);
+        if (imgStream != null) {
+            Image newImage = new Image(imgStream);
+
+            // Transition de fade out
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(300), playerSprite);
+            fadeOut.setFromValue(1.0);
+            fadeOut.setToValue(0.0);
+
+            fadeOut.setOnFinished(e -> {
+                // Changer l'image
+                playerSprite.setImage(newImage);
+
+                // Transition de fade in
+                FadeTransition fadeIn = new FadeTransition(Duration.millis(300), playerSprite);
+                fadeIn.setFromValue(0.0);
+                fadeIn.setToValue(1.0);
+                fadeIn.play();
+            });
+
+            fadeOut.play();
+        }
+    }
+
+    /**
+     * Affiche l'effet de Trempette du boss d'eau (attaque faible d'eau)
+     */
+    private void showBossWaterSplashEffect() {
+        InputStream waterImg = getClass().getResourceAsStream("/sprites/Trempette_boss_d'eau.png");
+        if (waterImg == null) {
+            System.out.println("DEBUG: Trempette_boss_d'eau.png NOT FOUND");
+            return;
+        }
+
+        Image waterImage = new Image(waterImg);
+        fireAttackImageView.setImage(waterImage);
+        fireAttackImageView.setTranslateX(0);
+        fireAttackImageView.setTranslateY(0);
+
+        // Fade in
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(200), fireAttackImageView);
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
+
+        // Scale animation (légère agrandissement)
+        ScaleTransition scale = new ScaleTransition(Duration.millis(400), fireAttackImageView);
+        scale.setFromX(0.7);
+        scale.setFromY(0.7);
+        scale.setToX(1.1);
+        scale.setToY(1.1);
+
+        // Transition verticale (descente de gouttes)
+        TranslateTransition translate = new TranslateTransition(Duration.millis(400), fireAttackImageView);
+        translate.setFromY(-50);
+        translate.setToY(50);
+
+        ParallelTransition parallel = new ParallelTransition(scale, translate);
+        SequentialTransition sequence = new SequentialTransition(fadeIn, parallel);
+
+        // Fade out après les animations
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(200), fireAttackImageView);
+        fadeOut.setFromValue(1.0);
+        fadeOut.setToValue(0.0);
+        fadeOut.setDelay(Duration.millis(600));
+
+        ParallelTransition finalSeq = new ParallelTransition(sequence, fadeOut);
+        finalSeq.setOnFinished(e -> {
+            fireAttackImageView.setTranslateX(0);
+            fireAttackImageView.setTranslateY(0);
+        });
+        finalSeq.play();
+    }
+
+    /**
+     * Affiche l'effet de Morsure du boss d'eau
+     */
+    private void showBossWaterBiteEffect() {
+        InputStream biteImg = getClass().getResourceAsStream("/sprites/Morsure_boss_d'eau.png");
+        if (biteImg == null) {
+            System.out.println("DEBUG: Morsure_boss_d'eau.png NOT FOUND");
+            return;
+        }
+
+        Image biteImage = new Image(biteImg);
+        fireAttackImageView.setImage(biteImage);
+        fireAttackImageView.setTranslateX(0);
+        fireAttackImageView.setTranslateY(0);
+
+        // Fade in
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(150), fireAttackImageView);
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
+
+        // Mouvement rapide d'attaque
+        TranslateTransition moveAttack = new TranslateTransition(Duration.millis(200), fireAttackImageView);
+        moveAttack.setFromX(-100);
+        moveAttack.setToX(0);
+
+        // Reculade
+        TranslateTransition moveBack = new TranslateTransition(Duration.millis(150), fireAttackImageView);
+        moveBack.setFromX(0);
+        moveBack.setToX(100);
+
+        SequentialTransition sequence = new SequentialTransition(fadeIn, moveAttack, moveBack);
+
+        // Fade out
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(200), fireAttackImageView);
+        fadeOut.setFromValue(1.0);
+        fadeOut.setToValue(0.0);
+        fadeOut.setDelay(Duration.millis(500));
+
+        ParallelTransition finalSeq = new ParallelTransition(sequence, fadeOut);
+        finalSeq.setOnFinished(e -> {
+            fireAttackImageView.setTranslateX(0);
+            fireAttackImageView.setTranslateY(0);
+        });
+        finalSeq.play();
+    }
+
+    /**
+     * Affiche l'effet de Carapace d'eau liquide (défense du boss d'eau)
+     */
+    private void showBossWaterShieldEffect() {
+        InputStream shieldImg = getClass().getResourceAsStream("/sprites/Bouclier_boss_d'eau.png");
+        if (shieldImg == null) {
+            System.out.println("DEBUG: Bouclier_boss_d'eau.png NOT FOUND");
+            return;
+        }
+
+        Image shieldImage = new Image(shieldImg);
+        fireAttackImageView.setImage(shieldImage);
+        fireAttackImageView.setTranslateX(0);
+        fireAttackImageView.setTranslateY(0);
+
+        // Fade in
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(200), fireAttackImageView);
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
+
+        // Rotation du bouclier
+        RotateTransition rotate = new RotateTransition(Duration.millis(500), fireAttackImageView);
+        rotate.setFromAngle(0);
+        rotate.setToAngle(360);
+        rotate.setCycleCount(1);
+
+        // Scale légère
+        ScaleTransition scale = new ScaleTransition(Duration.millis(500), fireAttackImageView);
+        scale.setFromX(0.8);
+        scale.setFromY(0.8);
+        scale.setToX(1.2);
+        scale.setToY(1.2);
+
+        ParallelTransition parallel = new ParallelTransition(rotate, scale);
+        SequentialTransition sequence = new SequentialTransition(fadeIn, parallel);
+
+        // Fade out
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(200), fireAttackImageView);
+        fadeOut.setFromValue(1.0);
+        fadeOut.setToValue(0.0);
+        fadeOut.setDelay(Duration.millis(700));
+
+        ParallelTransition finalSeq = new ParallelTransition(sequence, fadeOut);
+        finalSeq.setOnFinished(e -> {
+            fireAttackImageView.setTranslateX(0);
+            fireAttackImageView.setTranslateY(0);
+        });
+        finalSeq.play();
+    }
+
+    /**
+     * Affiche l'effet d'Éclaboussure mortelle (grosse attaque du boss d'eau)
+     */
+    private void showBossDeadlySplashEffect() {
+        InputStream deadlyImg = getClass().getResourceAsStream("/sprites/Eclaboussure_mortelle_boss_d'eau.png");
+        if (deadlyImg == null) {
+            System.out.println("DEBUG: Eclaboussure_mortelle_boss_d'eau.png NOT FOUND");
+            return;
+        }
+
+        Image deadlyImage = new Image(deadlyImg);
+        fireAttackImageView.setImage(deadlyImage);
+        fireAttackImageView.setTranslateX(0);
+        fireAttackImageView.setTranslateY(0);
+
+        // Fade in avec délai (build-up)
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(300), fireAttackImageView);
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
+        fadeIn.setDelay(Duration.millis(200));
+
+        // Scale animation spectaculaire
+        ScaleTransition scale = new ScaleTransition(Duration.millis(500), fireAttackImageView);
+        scale.setFromX(0.5);
+        scale.setFromY(0.5);
+        scale.setToX(1.5);
+        scale.setToY(1.5);
+        scale.setDelay(Duration.millis(200));
+
+        // Vibration d'impact
+        TranslateTransition vibrate1 = new TranslateTransition(Duration.millis(50), fireAttackImageView);
+        vibrate1.setByX(10);
+        vibrate1.setDelay(Duration.millis(400));
+
+        TranslateTransition vibrate2 = new TranslateTransition(Duration.millis(50), fireAttackImageView);
+        vibrate2.setByX(-20);
+        vibrate2.setDelay(Duration.millis(450));
+
+        TranslateTransition vibrate3 = new TranslateTransition(Duration.millis(50), fireAttackImageView);
+        vibrate3.setByX(10);
+        vibrate3.setDelay(Duration.millis(500));
+
+        ParallelTransition parallel = new ParallelTransition(fadeIn, scale, vibrate1, vibrate2, vibrate3);
+
+        // Fade out final
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(300), fireAttackImageView);
+        fadeOut.setFromValue(1.0);
+        fadeOut.setToValue(0.0);
+        fadeOut.setDelay(Duration.millis(700));
+
+        ParallelTransition finalSeq = new ParallelTransition(parallel, fadeOut);
+        finalSeq.setOnFinished(e -> {
+            fireAttackImageView.setTranslateX(0);
+            fireAttackImageView.setTranslateY(0);
+        });
+        finalSeq.play();
+    }
+
+    /**
+     * Affiche la séquence de mort du boss avec message et pause
+     */
+    private void showBossDeath() {
+        addNarrativeMessage(boss.getName() + " s'effondre... Le boss est vaincu !");
+
+        // Effet visuel du boss qui s'estompe
+        FadeTransition fadeOut = new FadeTransition(Duration.seconds(1.5), enemySprite);
+        fadeOut.setFromValue(1.0);
+        fadeOut.setToValue(0.3);
+        fadeOut.play();
+
+        // Pause avant l'écran de victoire
+        PauseTransition deathPause = new PauseTransition(Duration.seconds(2.0));
+        deathPause.setOnFinished(e -> {
+            endBattle();
+        });
+        deathPause.play();
+    }
+
+    /**
+     * Définit la couleur du cadre du boss selon son type
+     */
+    private void setBossBoxColor() {
+        if (bossBox == null)
+            return;
+
+        Color backgroundColor;
+        if (boss instanceof towergame.model.entities.WaterElementalBoss) {
+            // Couleur bleue/aquatique pour le boss d'eau
+            backgroundColor = Color.web("4eb4dc", 0.1);
+        } else {
+            // Couleur rouge/brasier pour le boss de feu
+            backgroundColor = Color.web("ff6b6b", 0.1);
+        }
+
+        BackgroundFill fill = new BackgroundFill(backgroundColor, new CornerRadii(10), Insets.EMPTY);
+        bossBox.setBackground(new Background(fill));
+        bossBox.setPadding(new Insets(10));
+    }
+
+    /**
+     * Lance la musique appropriée selon le type de boss
+     */
+    private void playBattleMusic() {
+        if (boss instanceof FireElementalBoss) {
+            AudioManager.getInstance().playTrack(AudioManager.FIRE_BOSS_MUSIC);
+        } else if (boss instanceof WaterElementalBoss) {
+            AudioManager.getInstance().playTrack(AudioManager.WATER_BOSS_MUSIC);
+        }
     }
 }

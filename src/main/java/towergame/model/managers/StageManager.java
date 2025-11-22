@@ -3,6 +3,7 @@ package towergame.model.managers;
 import towergame.model.actions.*;
 import towergame.model.entities.ABoss;
 import towergame.model.entities.FireElementalBoss;
+import towergame.model.entities.WaterElementalBoss;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public class StageManager {
     // Crée toutes les actions du joueur
     private void loadAllActions() {
         // Charger TOUS les sorts disponibles (10 actions)
-        this.unlockedActions.add(new PlayerAttackAction("Attaque", Element.NEUTRAL, 0, 10));
+        this.unlockedActions.add(new PlayerAttackAction("Attaque", Element.NEUTRAL, 0, 9999));
         this.unlockedActions.add(new PlayerHealSpell("Soin Léger", Element.NEUTRAL, 25, 2));
         this.unlockedActions.add(new PlayerDefendSpell("Barrière", Element.NEUTRAL, 2, 3));
         this.unlockedActions.add(new PlayerBoostSpell("Fureur", Element.NEUTRAL, 3, 3));
@@ -53,9 +54,9 @@ public class StageManager {
      * Crée tous les boss du jeu, dans l'ordre
      */
     private void loadAllBosses() {
-        // On instancie et on ajoute notre premier boss à la liste !
+        // On instancie et on ajoute nos boss à la liste !
         this.bossList.add(new FireElementalBoss());
-        // this.bossList.add(new WaterSerpentBoss()); // etc.
+        this.bossList.add(new WaterElementalBoss());
     }
 
     // --- Méthodes Publiques (pour le GameEngine) ---

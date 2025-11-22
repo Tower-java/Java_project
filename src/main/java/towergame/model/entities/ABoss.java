@@ -16,6 +16,7 @@ public abstract class ABoss extends AEntity {
     private int healPoints;
     protected boolean isEnraged;
     protected boolean isInvulnerable;
+    protected boolean spriteChangedForEnrage = false; // Tracker si le sprite a déjà été changé
 
     protected List<AAction> actionScript;
     protected int scriptIndex;
@@ -32,7 +33,9 @@ public abstract class ABoss extends AEntity {
 
     @Override
     public void takeDamage(int amount) {
-        if (this.isInvulnerable) {
+        // ONE-SHOT: Si une attaque va tuer le boss, elle passe à travers
+        // l'invulnérabilité
+        if (this.isInvulnerable && this.hp > amount) {
             System.out.println(this.name + " est invulnérable et ne subit aucun dégât !");
             return;
         }
@@ -77,5 +80,19 @@ public abstract class ABoss extends AEntity {
     // Méthode ajoutée pour les besoins des tests
     public void setEnraged(boolean isEnraged) {
         this.isEnraged = isEnraged;
+    }
+
+    /**
+     * Vérifie si le sprite d'enrage a déjà été changé
+     */
+    public boolean hasSpriteChangedForEnrage() {
+        return spriteChangedForEnrage;
+    }
+
+    /**
+     * Marque que le sprite d'enrage a été changé
+     */
+    public void markSpriteChangedForEnrage() {
+        this.spriteChangedForEnrage = true;
     }
 }

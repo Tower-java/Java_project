@@ -832,9 +832,10 @@ public class GameWindow extends JFrame {
 
             if (boss instanceof FireElementalBoss) {
                 FireElementalBoss fireBoss = (FireElementalBoss) boss;
-                if (fireBoss.isResistant(action.getElement())) {
+                double multiplier = action.getElement().getMultiplierAgainst(fireBoss.getElement());
+                if (multiplier == 0.5) {
                     effects.append(" Mais il résiste partiellement à l'attaque !");
-                } else if (fireBoss.isWeak(action.getElement())) {
+                } else if (multiplier == 2.0) {
                     effects.append(" L'élément est très efficace contre lui !");
                 }
             }

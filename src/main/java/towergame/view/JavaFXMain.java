@@ -9,6 +9,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
 import towergame.controller.VictoryController;
 import towergame.controller.DefeatController;
+import towergame.util.AudioManager;
 
 public class JavaFXMain extends Application {
 
@@ -31,6 +32,9 @@ public class JavaFXMain extends Application {
     }
 
     private void showMainMenu() {
+        // Lancer la musique du menu
+        AudioManager.getInstance().playTrack(AudioManager.MENU_MUSIC);
+
         javafx.scene.layout.VBox root = new javafx.scene.layout.VBox();
         root.setStyle(
                 "-fx-background-color: linear-gradient(to bottom, #0a0e27, #1a1a3e); -fx-alignment: CENTER; -fx-spacing: 40;");

@@ -41,6 +41,8 @@ public class BattleManager {
         // La logique de Gimmick doit être appelée après les deux actions
         if (boss instanceof towergame.model.entities.FireElementalBoss) {
             ((towergame.model.entities.FireElementalBoss) boss).checkGimmick(player, playerAction, turnNumber);
+        } else if (boss instanceof towergame.model.entities.WaterElementalBoss) {
+            ((towergame.model.entities.WaterElementalBoss) boss).checkGimmick(player, playerAction, turnNumber);
         }
 
         // Les effets de fin de tour (poison, cooldowns) doivent TOUJOURS être

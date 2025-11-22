@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.application.Platform;
+import towergame.util.AudioManager;
 
 /**
  * Contrôleur pour l'écran de victoire
@@ -29,6 +30,7 @@ public class VictoryController {
 
     @FXML
     public void initialize() {
+        AudioManager.getInstance().playTrack(AudioManager.VICTORY_MUSIC);
         restartButton.setOnAction(event -> restartGame());
         quitButton.setOnAction(event -> quitGame());
     }

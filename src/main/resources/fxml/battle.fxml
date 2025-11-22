@@ -43,37 +43,44 @@
                        style="-fx-font-size: 14px; -fx-text-fill: #ff6b6b; -fx-font-weight: bold;" />
             </HBox>
             
-            <!-- Battle entities display -->
-            <HBox spacing="60.0" alignment="CENTER" VBox.vgrow="ALWAYS" prefHeight="400.0"
-                  style="-fx-background-color: rgba(0,0,0,0.3); -fx-background-radius: 15; -fx-padding: 20;">
+            <!-- Battle entities display with background -->
+            <StackPane fx:id="battleArenaStack" VBox.vgrow="ALWAYS" prefHeight="400.0">
+                <!-- Background image layer -->
+                <ImageView fx:id="arenaBackground" fitWidth="1000" fitHeight="400" 
+                           preserveRatio="false" pickOnBounds="true" 
+                           style="-fx-opacity: 0.6;" />
                 
-                <!-- HERO section (LEFT) - Sprite only -->
-                <VBox alignment="CENTER" spacing="10.0" prefWidth="320.0" prefHeight="400.0" 
-                      style="-fx-padding: 10; -fx-background-color: rgba(78,205,196,0.1); -fx-background-radius: 10;">
-                    <ImageView fx:id="playerSprite" fitWidth="280.0" fitHeight="350.0" 
-                               preserveRatio="true" pickOnBounds="true" 
-                               style="-fx-effect: dropshadow(gaussian, rgba(0,200,255,0.4), 15, 0, 0, 5);" />
-                </VBox>
+                <!-- Battle entities overlay -->
+                <HBox spacing="60.0" alignment="CENTER" 
+                      style="-fx-background-color: transparent; -fx-padding: 20;">
+                    
+                    <!-- HERO section (LEFT) - Sprite seulement, aligné en bas -->
+                    <VBox alignment="BOTTOM_CENTER" spacing="0.0" prefWidth="320.0" prefHeight="400.0" 
+                          style="-fx-padding: 10; -fx-background-color: transparent; -fx-background-radius: 10;">
+                        <ImageView fx:id="playerSprite" fitWidth="140.0" fitHeight="175.0" 
+                                   preserveRatio="true" pickOnBounds="true" 
+                                   style="-fx-effect: dropshadow(gaussian, rgba(0,200,255,0.4), 15, 0, 0, 5);" />
+                    </VBox>
 
-                <!-- VS separator with fire attack effect -->
-                <VBox alignment="CENTER" spacing="10.0" prefWidth="60.0" prefHeight="400.0">
-                    <ImageView fx:id="fireAttackImageView" fitWidth="60.0" fitHeight="60.0" 
-                               preserveRatio="true" pickOnBounds="true"
-                               opacity="0.0"
-                               style="-fx-effect: dropshadow(gaussian, rgba(255,0,0,0.6), 10, 0, 0, 3);" />
-                </VBox>
+                    <!-- VS separator with fire attack effect -->
+                    <VBox alignment="CENTER" spacing="10.0" prefWidth="60.0" prefHeight="400.0">
+                        <ImageView fx:id="fireAttackImageView" fitWidth="60.0" fitHeight="60.0" 
+                                   preserveRatio="true" pickOnBounds="true"
+                                   opacity="0.0"
+                                   style="-fx-effect: dropshadow(gaussian, rgba(255,0,0,0.6), 10, 0, 0, 3);" />
+                    </VBox>
 
-                <!-- BOSS section (RIGHT) - Sprite only -->
-                <VBox alignment="CENTER" spacing="10.0" prefWidth="320.0" prefHeight="400.0" 
-                      style="-fx-padding: 10; -fx-background-color: rgba(255,107,107,0.1); -fx-background-radius: 10;">
-                    <ImageView fx:id="enemySprite" fitWidth="280.0" fitHeight="350.0" 
-                               preserveRatio="true" pickOnBounds="true" 
-                               style="-fx-effect: dropshadow(gaussian, rgba(255,0,0,0.4), 15, 0, 0, 5);" />
-                    <!-- Status label below sprite -->
-                    <Label fx:id="enemyStatusLabel" text="" 
-                           style="-fx-font-size: 12px; -fx-text-fill: #ffaa00; -fx-font-weight: bold;" />
-                </VBox>
-            </HBox>
+                    <!-- BOSS section (RIGHT) - Status label + Sprite -->
+                    <VBox fx:id="bossBox" alignment="BOTTOM_CENTER" spacing="5.0" prefWidth="320.0" prefHeight="400.0" 
+                          style="-fx-padding: 10; -fx-background-color: transparent; -fx-background-radius: 10;">
+                        <Label fx:id="enemyStatusLabel" text="" 
+                               style="-fx-font-size: 11px; -fx-text-fill: #ffaa00; -fx-font-weight: bold; -fx-alignment: CENTER;" />
+                        <ImageView fx:id="enemySprite" fitWidth="280.0" fitHeight="350.0" 
+                                   preserveRatio="true" pickOnBounds="true" 
+                                   style="-fx-effect: dropshadow(gaussian, rgba(255,0,0,0.4), 15, 0, 0, 5);" />
+                    </VBox>
+                </HBox>
+            </StackPane>
 
             <Separator style="-fx-background-color: #ffd700; -fx-pref-height: 2;" />
 

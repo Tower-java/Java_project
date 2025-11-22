@@ -14,6 +14,7 @@ public abstract class AAction {
     protected Element element;
     protected int cooldownDuration;
     protected int currentCooldown;
+    protected boolean justStartedCooldown; // Flag pour éviter de décrémenter le cooldown le même tour
 
     /**
      * Constructeur pour une AAction.
@@ -28,6 +29,7 @@ public abstract class AAction {
         this.element = element;
         this.cooldownDuration = cooldownDuration;
         this.currentCooldown = 0; // Une action est toujours prête au début.
+        this.justStartedCooldown = false;
     }
 
     /**
@@ -54,13 +56,22 @@ public abstract class AAction {
      */
     public void startCooldown() {
         this.currentCooldown = this.cooldownDuration;
+        this.justStartedCooldown = true; // Flag pour indiquer que le cooldown vient de commencer
     }
 
     /**
      * Réduit le cooldown de 1.
      * (À appeler par le BattleManager à la fin de chaque tour pour chaque action).
+     * Le cooldown n'est pas décrémenté le tour où il vient de démarrer.
      */
     public void updateCooldown() {
+        // Si le cooldown vient de démarrer ce tour, ne pas le décrémenter tout de suite
+        if (this.justStartedCooldown) {
+            this.justStartedCooldown = false;
+            return;
+        }
+
+        // Décrémenter le cooldown normalement
         if (this.currentCooldown > 0) {
             this.currentCooldown--;
         }
@@ -79,7 +90,8 @@ public abstract class AAction {
     public int getCurrentCooldown() {
         return this.currentCooldown;
     }
-    public int getCooldownDuration(){
+
+    public int getCooldownDuration() {
         return this.cooldownDuration;
     }
 }
